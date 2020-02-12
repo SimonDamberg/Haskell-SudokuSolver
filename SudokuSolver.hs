@@ -17,8 +17,10 @@ finishedBoard :: Board -> Bool
 finishedBoard board = undefined
 
 {- displayBoard board
-
+Converts the board into graphical rows
 -}
+displayBoard :: Board -> String
+displayBoard board = undefined
 
 {- checkRow row val
 Removes val from every other cell in row
