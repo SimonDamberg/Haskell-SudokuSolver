@@ -1,4 +1,4 @@
-data Cell = Maybe Int | [Int] deriving (Show, Eq)
+data Cell = Fixed Int | Possible [Int] deriving (Show, Eq)
 
 type Row = [Cell]
 
