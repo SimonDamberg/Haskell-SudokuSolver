@@ -1,9 +1,5 @@
 import Data.List
-<<<<<<< HEAD
 import Data.List.Split
-=======
-import Data.Traversable
->>>>>>> master
 
 data Cell = Fixed Int | Possible [Int] deriving (Show, Eq)
 
@@ -19,7 +15,6 @@ finishedBoard board = undefined
 {- makeBoard string
 Creates a board with all possible values in cells from a string
 -}
-<<<<<<< HEAD
 makeBoard :: String -> Maybe Board
 makeBoard string
  | length string == 81 = Just (map makeBoard' (chunksOf 9 string))
@@ -29,16 +24,11 @@ makeBoard string
      makeBoard' (x:xs)
        | x == '*' = [Possible [1..9]] ++ makeBoard' xs
        | otherwise = [Fixed (read [x] :: Int)] ++ makeBoard' xs
-=======
-makeBoard :: String -> Board
-makeBoard string = undefined
->>>>>>> master
 
 {- displayBoard board
 Converts the board into graphical rows
 -}
 displayBoard :: Board -> String
-<<<<<<< HEAD
 displayBoard board = unlines (map displayBoard' (board))
   where
     displayBoard' [] = []
@@ -47,9 +37,7 @@ displayBoard board = unlines (map displayBoard' (board))
       Fixed x -> show x ++ " " ++ displayBoard' xs
       _ -> "* " ++ displayBoard' xs
         
-=======
-displayBoard board = undefined
->>>>>>> master
+
 
 {- checkRow row val
 Removes val from every other cell in row
@@ -63,7 +51,6 @@ Removes val from every other cell in the 3x3 square corresponding to val
 checkSquare :: Board -> Cell -> Board
 checkSquare board val = undefined
 
-<<<<<<< HEAD
  {-
 test1 = TestCase $ assertEqual "makeBoard" ([Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Fixed 1,Possible [1,2,3,4,5,6,7,8,9]]
 [Fixed 4,Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9]]
@@ -77,6 +64,3 @@ test1 = TestCase $ assertEqual "makeBoard" ([Possible [1,2,3,4,5,6,7,8,9],Possib
 
 runtests = runTestTT $ TestList [test1, test2, test3, test4, test5, test6]
 -}
-=======
-
->>>>>>> master
