@@ -38,6 +38,7 @@ displayBoard board = unlines (map displayBoard' (board))
       _ -> "* " ++ displayBoard' xs
         
 
+
 {- checkRow row val
 Removes val from every other cell in row
 -}
