@@ -43,8 +43,13 @@ displayBoard board = unlines (map displayBoard' (board))
 Removes val from every other cell in row
 -}
 checkRow :: Row -> Cell -> Row
-checkRow row val = undefined
-
+checkRow [] cellVal = []
+checkRow (x:xs) cellVal =
+  case cellVal of
+    Fixed val -> case x of
+                   Possible cell -> [Possible (filter (val /=) cell)] ++ checkRow xs (Fixed val)
+                   _ -> [x] ++ checkRow xs (Fixed val)
+   
 {- checkSquare board val
 Removes val from every other cell in the 3x3 square corresponding to val
 -}
