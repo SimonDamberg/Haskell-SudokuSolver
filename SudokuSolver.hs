@@ -20,7 +20,6 @@ finishedBoard board = if length (foldl (++) "" (map finishedBoard' board)) == 81
         Fixed x -> "0" ++ finishedBoard' xs
         _ -> "" ++ finishedBoard' xs
 
-
 {- makeBoard string
 Creates a board with all possible values in cells from a string
 -}
@@ -55,7 +54,7 @@ checkRow [] cellVal = []
 checkRow (x:xs) cellVal =
   case cellVal of
     Fixed val -> case x of
-                   Possible cell -> [Possible (filter (val /=) cell)] ++ checkRow xs (Fixed val)
+                   Possible cell -> if ((length cell) == 1) then [Fixed (head cell)] ++ checkRow xs (Fixed val) else [Possible (filter (val /=) cell)] ++ checkRow xs (Fixed val)
                    _ -> [x] ++ checkRow xs (Fixed val)
 
 {- checkSquare board val
