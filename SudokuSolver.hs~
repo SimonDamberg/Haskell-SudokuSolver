@@ -47,24 +47,17 @@ displayBoard board = unlines (map displayBoard' (board))
       Fixed x -> show x ++ " " ++ displayBoard' xs
       _ -> "* " ++ displayBoard' xs
 
-
 {- checkRow row val
 Removes val from every other cell in row
 -}
 checkRow :: Row -> Cell -> Row
-<<<<<<< HEAD
-checkRow row val = undefined
-
-
-=======
 checkRow [] cellVal = []
 checkRow (x:xs) cellVal =
   case cellVal of
     Fixed val -> case x of
                    Possible cell -> [Possible (filter (val /=) cell)] ++ checkRow xs (Fixed val)
                    _ -> [x] ++ checkRow xs (Fixed val)
-   
->>>>>>> simon
+
 {- checkSquare board val
 Removes val from every other cell in the 3x3 square corresponding to val
 -}
