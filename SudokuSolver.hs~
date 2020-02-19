@@ -49,13 +49,21 @@ displayBoard board = unlines (map displayBoard' (board))
 {- checkRow row val
 Removes val from every other cell in row
 -}
+checkRows :: Board -> Board
+checkRows [] = []
+checkRows board@(x:xs)
+ | elem fixedCells x = [checkRow x fixedCells] ++ checkRows xs fixedCells
+ | otherwise = [x] ++ checkRows xs fixedCells
+
+--transpose (map (\x -> checkRow x cellVal) (transpose (map (\x -> checkRow x cellVal) board)))
+
 checkRow :: Row -> Cell -> Row
-checkRow [] cellVal = []
-checkRow (x:xs) cellVal =
-  case cellVal of
-    Fixed val -> case x of
-                   Possible cell -> if ((length cell) == 1) then [Fixed (head cell)] ++ checkRow xs (Fixed val) else [Possible (filter (val /=) cell)] ++ checkRow xs (Fixed val)
-                   _ -> [x] ++ checkRow xs (Fixed val)
+checkRow [] = []
+checkRow (x:xs) =
+  case x of
+    Possible cell -> if ((length cell) == 1) then [Fixed (head cell)] ++ checkRow xs (Fixed val) else [Possible (filter (val /=) cell)] ++ checkRow xs (Fixed val)
+    _             -> [x] ++ checkRow xs (Fixed val)
+     where fixedCells = [x | Fixed x <- (x:xs)]
 
 {- checkSquare board val
 Removes val from every other cell in the 3x3 square corresponding to val
