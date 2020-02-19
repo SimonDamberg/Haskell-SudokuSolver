@@ -12,7 +12,7 @@ type Board = [Row]
 Checks if all cells are filled with one value
 -}
 finishedBoard :: Board -> Bool
-finishedBoard board = if length (foldl (++) "" (map finishedBoard' board)) == 81 then True else False
+finishedBoard board = (length (foldl (++) "" (map finishedBoard' board))) == 81
   where
     finishedBoard' [] = []
     finishedBoard' (x:xs) =
@@ -46,15 +46,13 @@ displayBoard board = unlines (map displayBoard' (board))
       Fixed x -> show x ++ " " ++ displayBoard' xs
       _ -> "* " ++ displayBoard' xs
 
-{- checkRow row val
-Removes val from every other cell in row
+{- checkRows Board
+Removes all fixed 
 -}
 checkRows :: Board -> Board
 checkRows [] = []
 checkRows board@(x:xs) = [checkRow x fixedCells] ++ checkRows xs
   where fixedCells = [x | Fixed x <- x]
-
---transpose (map (\x -> checkRow x cellVal) (transpose (map (\x -> checkRow x cellVal) board)))
 
 checkRow :: Row -> [Int] -> Row
 checkRow [] fixedCells = []
@@ -64,13 +62,22 @@ checkRow row@(x:xs) fixedCells =
     _             -> [x] ++ checkRow xs fixedCells
   
 
-{- checkSquare board val
-Removes val from every other cell in the 3x3 square corresponding to val
+{- checkBoard board 
+Removes all Fixed cells from the 3x3 square, row and coloumn corresponding to the fixed cell
 -}
-checkSquare :: Board -> Cell -> Board
-checkSquare board val = undefined
+checkBoard :: Board -> Board
+checkBoard board  = transpose $ checkRows $ transpose $ checkRows $ makeSquare $ checkRows $ makeSquare board
 
+makeSquare :: Board -> Board
+makeSquare [] = []
+makeSquare board = makeSquare' ((map (chunksOf 3) board))
+  where 
+    makeSquare' [] = []
+    makeSquare' (a:b:c:xs) = if null a then makeSquare' xs else [(concat square)] ++ (makeSquare' newBoard)
+      where square = (map head [a, b, c])
+            newBoard = (drop 1 a):(drop 1 b):(drop 1 c):xs
 
+                               
 test1 = TestCase $ assertEqual "Display board" ("* * * * * * * 1 * \n4 * * * * * * * * \n* 2 * * * * * * * \n* * * * 5 * 4 * 7 \n* * 8 * * * 3 * * \n* * 1 * 9 * * * * \n3 * * 4 * * 2 * * \n* 5 * 1 * * * * * \n* * * 8 * 6 * * * \n") (let Just board = makeBoard "*******1*4*********2***********5*4*7**8***3****1*9****3**4**2***5*1********8*6***" in displayBoard board)
 test2 = TestCase $ assertEqual "Finished Board" True (let Just board = makeBoard "123456789123456789123456789123456789123456789123456789123456789123456789123456789" in finishedBoard board)
 
