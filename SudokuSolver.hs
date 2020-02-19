@@ -71,6 +71,25 @@ checkSquare :: Board -> Cell -> Board
 checkSquare board val = undefined
 
 
+possibleEmpty :: Board -> Bool
+possibleEmpty board = length (foldl (++) "" (map possibleEmpty' board)) > 0
+  where
+    possibleEmpty' [] = []
+    possibleEmpty' (x:xs) =
+      case x of
+        Possible x -> if x == [] then "0"  else "" ++ possibleEmpty' xs
+        _ -> "" ++ possibleEmpty' xs
+
+--possibleEmpty :: Board -> Bool
+--possibleEmpty [] = True
+--possibleEmpty board@(x:xs) = not (possibleEmpty' x && possibleEmpty xs)
+
+--possibleEmpty' row@(x:xs) =
+  --case x of
+    --Possible cell -> not (cell == [])
+    --Fixed cell -> True
+
+
 test1 = TestCase $ assertEqual "Display board" ("* * * * * * * 1 * \n4 * * * * * * * * \n* 2 * * * * * * * \n* * * * 5 * 4 * 7 \n* * 8 * * * 3 * * \n* * 1 * 9 * * * * \n3 * * 4 * * 2 * * \n* 5 * 1 * * * * * \n* * * 8 * 6 * * * \n") (let Just board = makeBoard "*******1*4*********2***********5*4*7**8***3****1*9****3**4**2***5*1********8*6***" in displayBoard board)
 test2 = TestCase $ assertEqual "Finished Board" True (let Just board = makeBoard "123456789123456789123456789123456789123456789123456789123456789123456789123456789" in finishedBoard board)
 
