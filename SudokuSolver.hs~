@@ -1,3 +1,5 @@
+module Solver where
+
 import Data.List
 import Data.List.Split
 import Test.HUnit
@@ -7,6 +9,7 @@ data Cell = Fixed Int | Possible [Int] deriving (Show, Eq)
 type Row = [Cell]
 
 type Board = [Row]
+
 
 {- finishedBoard board
 Checks if all cells are filled with one value

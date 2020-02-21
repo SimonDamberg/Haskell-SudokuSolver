@@ -10,6 +10,16 @@ type Row = [Cell]
 
 type Board = [Row]
 
+{-solve board
+Solves board-}
+solve :: Board -> Maybe Board
+solve board = undefined
+
+{- nextBoard board
+Creates two possible boards from board
+-}
+nextBoard :: Board -> (Board, Board)
+nextBoard board = undefined
 
 {- finishedBoard board
 Checks if all cells are filled with one value
@@ -67,7 +77,7 @@ checkRow row@(x:xs) fixedCells =
 
 {- checkBoard board 
 Removes all Fixed cells from the 3x3 square, row and coloumn corresponding to the fixed cell
--}
+-}   
 checkBoard :: Board -> Board
 checkBoard board  = transpose $ checkRows $ transpose $ checkRows $ makeSquare $ checkRows $ makeSquare board
 
