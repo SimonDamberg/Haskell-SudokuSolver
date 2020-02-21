@@ -1,7 +1,8 @@
+module Solver where
+
 import Data.List
 import Data.List.Split
 import Test.HUnit
-import Control.Exception
 
 data Cell = Fixed Int | Possible [Int] deriving (Show, Eq)
 
@@ -9,18 +10,6 @@ type Row = [Cell]
 
 type Board = [Row]
 
-{- solve board
-Finds a solution
--}
-solve :: Board -> Board
-solve board = undefined
-
-{- findNext board
-Fixes a possible cell to its value
-
--}
-findNext :: Board -> (Board, Board)
-findNext board = undefined
 
 {- finishedBoard board
 Checks if all cells are filled with one value
@@ -61,7 +50,7 @@ displayBoard board = unlines (map displayBoard' (board))
       _ -> "* " ++ displayBoard' xs
 
 {- checkRows Board
-Removes all Fixed cells in all rows in board 
+Removes all fixed 
 -}
 checkRows :: Board -> Board
 checkRows [] = []
