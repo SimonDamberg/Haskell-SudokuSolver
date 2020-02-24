@@ -2,7 +2,13 @@ module Solver where
 
 import Data.List
 import Data.List.Split
+import Data.Function
+<<<<<<< HEAD
+=======
+import Control.Applicative
+>>>>>>> master
 import Test.HUnit
+import Control.Applicative
 
 data Cell = Fixed Int | Possible [Int] deriving (Show, Eq)
 
@@ -13,13 +19,55 @@ type Board = [Row]
 {-solve board
 Solves board-}
 solve :: Board -> Maybe Board
-solve board = undefined
+solve board = solve' $ checkBoard board
+  where
+<<<<<<< HEAD
+    solve' g
+      | possibleEmpty g = Nothing
+      | finishedBoard g  = Just g
+      | otherwise       =
+          let (board1, board2) = newBoard g
+          in solve board1 <|> solve board2
 
-{- nextBoard board
+=======
+    solve' board
+      | possibleEmpty board = Nothing
+      | finishedBoard board = Just board
+      | otherwise           = let (board1, board2) = newBoard board in solve board1 <|> solve board2
+>>>>>>> master
+
+{- newBoard board
 Creates two possible boards from board
 -}
-nextBoard :: Board -> (Board, Board)
-nextBoard board = undefined
+newBoard :: Board -> (Board, Board)
+newBoard board = (returnToBoard (replace i first board), returnToBoard (replace i rest board))
+   where
+    (i, first, rest) = fixCell (minimumBy (compare `on` (posCount . snd)) $ filter (cellPossible . snd) $ zip [0..80] $ concat board)
+<<<<<<< HEAD
+  
+returnToBoard board = chunksOf 9 $ map snd board
+
+=======
+
+returnToBoard board = chunksOf 9 $ map snd board
+
+replace i val board = let (first,last) = splitAt i (zip [0..80] $ concat board) in first ++ [(i,val)] ++ (tail last)
+
+>>>>>>> master
+cellPossible (Possible _) = True
+cellPossible _            = False
+
+posCount (Possible xs) = length xs
+posCount (Fixed _)     = 1
+
+fixCell (i, Possible [x, y]) = (i, Fixed x, Fixed y)
+fixCell (i, Possible (x:xs)) = (i, Fixed x, Possible xs)
+<<<<<<< HEAD
+fixCell _                    = error "Impossible case"
+
+replace i val board = let (first,last) = splitAt i (zip [0..80] (concat board)) in first ++ [(i,val)] ++ (tail last)
+=======
+>>>>>>> master
 
 {- finishedBoard board
 Checks if all cells are filled with one value
