@@ -1,7 +1,8 @@
+module Solver where
+
 import Data.List
 import Data.List.Split
 import Test.HUnit
-import Control.Exception
 
 data Cell = Fixed Int | Possible [Int] deriving (Show, Eq)
 
@@ -9,18 +10,16 @@ type Row = [Cell]
 
 type Board = [Row]
 
-{- solve board
-Finds a solution
--}
-solve :: Board -> Board
+{-solve board
+Solves board-}
+solve :: Board -> Maybe Board
 solve board = undefined
 
-{- findNext board
-Fixes a possible cell to its value
-
+{- nextBoard board
+Creates two possible boards from board
 -}
-findNext :: Board -> (Board, Board)
-findNext board = undefined
+nextBoard :: Board -> (Board, Board)
+nextBoard board = undefined
 
 {- finishedBoard board
 Checks if all cells are filled with one value
@@ -61,7 +60,7 @@ displayBoard board = unlines (map displayBoard' (board))
       _ -> "* " ++ displayBoard' xs
 
 {- checkRows Board
-Removes all Fixed cells in all rows in board 
+Removes all fixed 
 -}
 checkRows :: Board -> Board
 checkRows [] = []
@@ -78,7 +77,7 @@ checkRow row@(x:xs) fixedCells =
 
 {- checkBoard board 
 Removes all Fixed cells from the 3x3 square, row and coloumn corresponding to the fixed cell
--}
+-}   
 checkBoard :: Board -> Board
 checkBoard board  = transpose $ checkRows $ transpose $ checkRows $ makeSquare $ checkRows $ makeSquare board
 
