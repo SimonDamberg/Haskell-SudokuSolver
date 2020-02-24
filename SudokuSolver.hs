@@ -1,3 +1,5 @@
+module Solver where
+
 import Data.List
 import Data.List.Split
 import Test.HUnit
@@ -8,11 +10,22 @@ type Row = [Cell]
 
 type Board = [Row]
 
+{-solve board
+Solves board-}
+solve :: Board -> Maybe Board
+solve board = undefined
+
+{- nextBoard board
+Creates two possible boards from board
+-}
+nextBoard :: Board -> (Board, Board)
+nextBoard board = undefined
+
 {- finishedBoard board
 Checks if all cells are filled with one value
 -}
 finishedBoard :: Board -> Bool
-finishedBoard board = if length (foldl (++) "" (map finishedBoard' board)) == 81 then True else False
+finishedBoard board = (length (foldl (++) "" (map finishedBoard' board))) == 81
   where
     finishedBoard' [] = []
     finishedBoard' (x:xs) =
@@ -46,22 +59,45 @@ displayBoard board = unlines (map displayBoard' (board))
       Fixed x -> show x ++ " " ++ displayBoard' xs
       _ -> "* " ++ displayBoard' xs
 
-{- checkRow row val
-Removes val from every other cell in row
+{- checkRows Board
+Removes all fixed 
 -}
-checkRow :: Row -> Cell -> Row
-checkRow [] cellVal = []
-checkRow (x:xs) cellVal =
-  case cellVal of
-    Fixed val -> case x of
-                   Possible cell -> if ((length cell) == 1) then [Fixed (head cell)] ++ checkRow xs (Fixed val) else [Possible (filter (val /=) cell)] ++ checkRow xs (Fixed val)
-                   _ -> [x] ++ checkRow xs (Fixed val)
+checkRows :: Board -> Board
+checkRows [] = []
+checkRows board@(x:xs) = [checkRow x fixedCells] ++ checkRows xs
+  where fixedCells = [x | Fixed x <- x]
 
-{- checkSquare board val
-Removes val from every other cell in the 3x3 square corresponding to val
--}
-checkSquare :: Board -> Cell -> Board
-checkSquare board val = undefined
+checkRow :: Row -> [Int] -> Row
+checkRow [] fixedCells = []
+checkRow row@(x:xs) fixedCells =
+  case x of
+    Possible cell -> [Possible (cell \\ fixedCells)] ++ checkRow xs fixedCells
+    _             -> [x] ++ checkRow xs fixedCells
+  
+
+{- checkBoard board 
+Removes all Fixed cells from the 3x3 square, row and coloumn corresponding to the fixed cell
+-}   
+checkBoard :: Board -> Board
+checkBoard board  = transpose $ checkRows $ transpose $ checkRows $ makeSquare $ checkRows $ makeSquare board
+
+makeSquare :: Board -> Board
+makeSquare [] = []
+makeSquare board = makeSquare' ((map (chunksOf 3) board))
+  where 
+    makeSquare' [] = []
+    makeSquare' (a:b:c:xs) = if null a then makeSquare' xs else [(concat square)] ++ (makeSquare' newBoard)
+      where square = (map head [a, b, c])
+            newBoard = (drop 1 a):(drop 1 b):(drop 1 c):xs
+
+possibleEmpty :: Board -> Bool
+possibleEmpty board = length (foldl (++) "" (map possibleEmpty' board)) > 0
+  where
+    possibleEmpty' [] = []
+    possibleEmpty' (x:xs) =
+      case x of
+        Possible x -> if x == [] then "0"  else "" ++ possibleEmpty' xs
+        _ -> "" ++ possibleEmpty' xs
 
 
 test1 = TestCase $ assertEqual "Display board" ("* * * * * * * 1 * \n4 * * * * * * * * \n* 2 * * * * * * * \n* * * * 5 * 4 * 7 \n* * 8 * * * 3 * * \n* * 1 * 9 * * * * \n3 * * 4 * * 2 * * \n* 5 * 1 * * * * * \n* * * 8 * 6 * * * \n") (let Just board = makeBoard "*******1*4*********2***********5*4*7**8***3****1*9****3**4**2***5*1********8*6***" in displayBoard board)
