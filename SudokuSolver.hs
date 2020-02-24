@@ -3,8 +3,8 @@ module Solver where
 import Data.List
 import Data.List.Split
 import Data.Function
-import Test.HUnit
 import Control.Applicative
+import Test.HUnit
 
 data Cell = Fixed Int | Possible [Int] deriving (Show, Eq)
 
@@ -17,13 +17,10 @@ Solves board-}
 solve :: Board -> Maybe Board
 solve board = solve' $ checkBoard board
   where
-    solve' g
-      | possibleEmpty g = Nothing
-      | finishedBoard g  = Just g
-      | otherwise       =
-          let (board1, board2) = newBoard g
-          in solve board1 <|> solve board2
-
+    solve' board
+      | possibleEmpty board = Nothing
+      | finishedBoard board = Just board
+      | otherwise           = let (board1, board2) = newBoard board in solve board1 <|> solve board2
 
 {- newBoard board
 Creates two possible boards from board
@@ -35,6 +32,8 @@ newBoard board = (returnToBoard (replace i first board), returnToBoard (replace 
   
 returnToBoard board = chunksOf 9 $ map snd board
 
+replace i val board = let (first,last) = splitAt i (zip [0..80] $ concat board) in first ++ [(i,val)] ++ (tail last)
+
 cellPossible (Possible _) = True
 cellPossible _            = False
 
@@ -45,7 +44,6 @@ fixCell (i, Possible [x, y]) = (i, Fixed x, Fixed y)
 fixCell (i, Possible (x:xs)) = (i, Fixed x, Possible xs)
 fixCell _                    = error "Impossible case"
 
-replace i val board = let (first,last) = splitAt i (zip [0..80] (concat board)) in first ++ [(i,val)] ++ (tail last)
 
 {- finishedBoard board
 Checks if all cells are filled with one value
