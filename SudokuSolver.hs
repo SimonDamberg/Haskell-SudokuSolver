@@ -1,15 +1,77 @@
-module Solver where
+module SudokuSolver where
 
 import Data.List
 import Data.List.Split
 import Test.HUnit
+import Data.Array
 
 data Cell = Fixed Int | Possible [Int] deriving (Show, Eq)
+
+data Unsolved = Solving | Solved  deriving (Show, Eq)
 
 type Row = [Cell]
 
 type Board = [Row]
 
+<<<<<<< Updated upstream
+=======
+data Solver = Solver { solverBoard :: Board
+                     , solverCell :: Cell
+                     , unsolved :: Unsolved
+                     } deriving (Eq,Show)
+n :: Int
+n = 9
+
+screenWidth :: Int
+screenWidth = 640
+
+screenHeight :: Int
+screenHeight = 480
+
+cellWidth :: Float
+cellWidth = fromIntegral screenWidth / fromIntegral n
+
+
+cellHeight :: Float
+cellHeight = fromIntegral screenHeight / fromIntegral n
+
+
+initialSolver = Solver {solverBoard = array indexRange $ zip (range indexRange) [Possible] 
+                       , unsolved = Solving
+                       }
+  where indexRange = ((0,0), (n-1,n-1))
+
+{-solve board
+Solves board-}
+solve :: Board -> Maybe Board
+solve board = solve' $ checkBoard board
+  where
+    solve' board
+      | possibleEmpty board = Nothing
+      | finishedBoard board = Just board
+      | otherwise           = let (board1, board2) = newBoard board in solve board1 <|> solve board2
+
+{- nextBoard board
+Creates two possible boards from board
+-}
+newBoard :: Board -> (Board, Board)
+newBoard board = (returnToBoard (replace i first board), returnToBoard (replace i rest board))
+   where
+    (i, first, rest) = fixCell (minimumBy (compare `on` (posCount . snd)) $ filter (cellPossible . snd) $ zip [0..80] $ concat board)
+
+returnToBoard board = chunksOf 9 $ map snd board
+
+replace i val board = let (first,last) = splitAt i (zip [0..80] $ concat board) in first ++ [(i,val)] ++ (tail last)
+
+cellPossible (Possible _) = True
+cellPossible _            = False
+
+posCount (Possible xs) = length xs
+posCount (Fixed _)     = 1
+
+fixCell (i, Possible [x, y]) = (i, Fixed x, Fixed y)
+fixCell (i, Possible (x:xs)) = (i, Fixed x, Possible xs)
+>>>>>>> Stashed changes
 
 {- finishedBoard board
 Checks if all cells are filled with one value
