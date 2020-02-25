@@ -5,41 +5,12 @@ import Data.List.Split
 import Data.Function
 import Control.Applicative
 import Test.HUnit
-import Data.Array
 
 data Cell = Fixed Int | Possible [Int] deriving (Show, Eq)
-
-data Unsolved = Solving | Solved  deriving (Show, Eq)
 
 type Row = [Cell]
 
 type Board = [Row]
-
-data Solver = Solver { solverBoard :: Board
-                     , solverCell :: Cell
-                     , unsolved :: Unsolved
-                     } deriving (Eq,Show)
-n :: Int
-n = 9
-
-screenWidth :: Int
-screenWidth = 640
-
-screenHeight :: Int
-screenHeight = 480
-
-cellWidth :: Float
-cellWidth = fromIntegral screenWidth / fromIntegral n
-
-
-cellHeight :: Float
-cellHeight = fromIntegral screenHeight / fromIntegral n
-
-
-initialSolver = Solver {solverBoard = array indexRange $ zip (range indexRange) [Possible] 
-                       , unsolved = Solving
-                       }
-  where indexRange = ((0,0), (n-1,n-1))
 
 {-solve board
 Solves board-}
@@ -87,10 +58,9 @@ finishedBoard board = (length (foldl (++) "" (map finishedBoard' board))) == 81
 {- makeBoard string
 Creates a board with all possible values in cells from a string
 -}
-makeBoard :: String -> Maybe Board
+makeBoard :: String -> Board
 makeBoard string
- | length string == 81 = Just (map makeBoard' (chunksOf 9 string))
- | otherwise           = Nothing
+ | length string == 81 = (map makeBoard' (chunksOf 9 string))
    where
      makeBoard' [] = []
      makeBoard' (x:xs)
@@ -151,7 +121,7 @@ possibleEmpty board = length (foldl (++) "" (map possibleEmpty' board)) > 0
         _ -> "" ++ possibleEmpty' xs
 
 
-test1 = TestCase $ assertEqual "Display board" ("* * * * * * * 1 * \n4 * * * * * * * * \n* 2 * * * * * * * \n* * * * 5 * 4 * 7 \n* * 8 * * * 3 * * \n* * 1 * 9 * * * * \n3 * * 4 * * 2 * * \n* 5 * 1 * * * * * \n* * * 8 * 6 * * * \n") (let Just board = makeBoard "*******1*4*********2***********5*4*7**8***3****1*9****3**4**2***5*1********8*6***" in displayBoard board)
-test2 = TestCase $ assertEqual "Finished Board" True (let Just board = makeBoard "123456789123456789123456789123456789123456789123456789123456789123456789123456789" in finishedBoard board)
+test1 = TestCase $ assertEqual "Display board" ("* * * * * * * 1 * \n4 * * * * * * * * \n* 2 * * * * * * * \n* * * * 5 * 4 * 7 \n* * 8 * * * 3 * * \n* * 1 * 9 * * * * \n3 * * 4 * * 2 * * \n* 5 * 1 * * * * * \n* * * 8 * 6 * * * \n") (let board = makeBoard "*******1*4*********2***********5*4*7**8***3****1*9****3**4**2***5*1********8*6***" in displayBoard board)
+test2 = TestCase $ assertEqual "Finished Board" True (let board = makeBoard "123456789123456789123456789123456789123456789123456789123456789123456789123456789" in finishedBoard board)
 
 runtests = runTestTT $ TestList [test1, test2]                                 

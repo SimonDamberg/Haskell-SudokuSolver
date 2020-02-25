@@ -1,24 +1,61 @@
-module Rendering where
-
+import System.Environment
 import Graphics.Gloss
 import Graphics.Gloss.Data.Color
+import Graphics.Gloss.Interface.Pure.Game
 
 import SudokuSolver
 
+n :: Int
+n = 9
+
+screenWidth :: Int
+screenWidth = 720
+
+screenHeight :: Int
+screenHeight = 720
+
+cellWidth :: Float
+cellWidth = fromIntegral screenWidth / fromIntegral n
+
+cellHeight :: Float
+cellHeight = (fromIntegral screenHeight / fromIntegral n)
+
+fixedColor = makeColorI 53 152 55 255
+
 window :: Display
-window = InWindow "Sudoku Solver" (640, 480) (100, 100)
+window = FullScreen
+--inWindow "Sudoku Solver" (720, 720) (100, 100)
 
 backgroundColor = white
 
-play :: Display -> Color -> Int -> Board -> (Board -> Picture) -> (Event -> Board -> Board) -> [Event -> Board -> Board] -> IO ()
-play display color fps board x y z o = display color fps board x y z o
-
-board = makeBoard "*******12*5*4************3*7**6**4****1**********8****92****8*****51*7*******3***"
+makeBoardIO :: Board -> IO Board
+makeBoardIO board = return board
 
 main :: IO ()
-main = play window backgroundColor 30 board gridBoard 
-
+main = do
+  boardArg <- getArgs
+  board <- return (makeBoard (head boardArg))
+  play window backgroundColor 30 (board) displayBoardOnGrid eventBoard floatBoard
+  
+eventBoard event board = case event of
+  EventKey (SpecialKey KeySpace) _ _ _ -> case solve board of
+                    Just a -> a
+                    _ -> board
+  _ -> board
+              
+floatBoard float board = board
+    
 displayBoardOnGrid :: Board -> Picture
+displayBoardOnGrid board = translate (fromIntegral screenWidth * (-0.5)) (fromIntegral screenHeight * (-0.5)) (pictures ((displayBoardOnGrid' (zip [0..80] $ concat board)) ++ [gridBoard]))
+
+displayBoardOnGrid' :: [(Int, Cell)] -> [Picture]
+displayBoardOnGrid' [] = []
+displayBoardOnGrid' (x:xs) = [displayCell x] ++  displayBoardOnGrid' xs
+
+displayCell (i, val) =
+  case val of
+    Fixed num -> translate (((fromIntegral (i `mod` 9) :: Float) * cellWidth) + 17) (((fromIntegral (8 - (i `div` 9)) :: Float) * cellHeight) + 9.5) (color fixedColor $ scale 0.60 0.60 $ text $ show num)
+    _         -> Blank
 
 gridBoard :: Picture
 gridBoard =
@@ -70,6 +107,7 @@ possibleCell = Blank
 fixedCell :: Picture
 fixdCell = Blank
 
+cellsOfBoard :: (Board, Board) -> Cell -> Picture -> Picture
 
 cellsOfBoard :: Board -> Cell -> Picture -> Picture
 cellsOfBoard board cell cellPicture =
@@ -85,7 +123,7 @@ possibleCellsOfBoard = cellsOfBoard board (Possible [Int]) possibleCell
 fixedCellsOfBoard :: Board -> Picture
 fixedCellsOfBoard = cellsOfBoard board (Fixed Int) fixedCell
 
-boardAsSolvedPicture solved = color  (boardAsPicture board)
+boardAsSolvedPicture solved = color (boardAsPicture board)
 
 solverAsPicture :: SudokuSolver -> Picture
 solverAsPicture solve =

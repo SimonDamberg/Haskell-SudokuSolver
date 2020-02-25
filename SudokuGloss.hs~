@@ -5,13 +5,53 @@ import Graphics.Gloss.Data.Color
 
 import SudokuSolver
 
+n :: Int
+n = 9
 
+screenWidth :: Int
+screenWidth = 720
+
+screenHeight :: Int
+screenHeight = 720
+
+cellWidth :: Float
+cellWidth = fromIntegral screenWidth / fromIntegral n
+
+cellHeight :: Float
+cellHeight = (fromIntegral screenHeight / fromIntegral n)
+
+fixedColor = makeColorI 53 152 55 255
 
 window :: Display
-window = InWindow "Sudoku Solver" (640, 480) (100, 100)
+window = InWindow "Sudoku Solver" (720, 720) (100, 100)
 
 backgroundColor = white
 
+makeBoardIO :: Board -> IO Board
+makeBoardIO board = return board
+
+main :: IO ()
+main = do
+  board <- makeBoardIO (makeBoard "*******12*5*4************3*7**6**4****1**********8****92****8*****51*7*******3***")
+  play window backgroundColor 30 (board) displayBoardOnGrid eventBoard floatBoard 
+
+--eventBoard :: Event -> Board -> Board
+eventBoard event board = board
+
+--floatBoard :: Float -> Board -> Board
+floatBoard float board = board
+
+displayBoardOnGrid :: Board -> Picture
+displayBoardOnGrid board = translate (fromIntegral screenWidth * (-0.5)) (fromIntegral screenHeight * (-0.5))(pictures ((displayBoardOnGrid' (zip [0..80] $ concat board)) ++ [gridBoard]))
+
+displayBoardOnGrid' :: [(Int, Cell)] -> [Picture]
+displayBoardOnGrid' [] = []
+displayBoardOnGrid' (x:xs) = [displayCell x] ++  displayBoardOnGrid' xs
+
+displayCell (i, val) =
+  case val of
+    Fixed num -> translate (((fromIntegral (i `mod` 9) :: Float) * cellWidth) + 17) (((fromIntegral (i `div` 9) :: Float) * cellHeight) + 9.5) (color fixedColor $ scale 0.60 0.60 $ text $ show num)
+    _         -> Blank
 
 gridBoard :: Picture
 gridBoard =
@@ -25,10 +65,12 @@ gridBoard =
                      ])
   [0.0..fromIntegral n]
 
+  
+{-
 main :: IO ()
 main = backgroundColor 30 initialSolver boardAsPicture transfromSolver (const id)
 
-{-
+
 
 boardAsUnsolved board = Blank
 
@@ -44,14 +86,14 @@ boardGrid :: Board -> Picture
 
 boardAsPicture board =
   pictures []
--}
+
 
 
 boardAsSolvingPicture board =
 
 boardAsPicture board = Blank
 
-snapPictureToCell picture (roq, column) = translate x y picture
+snapPictureToCell picture (row, column) = translate x y picture
   where x = fromIntegral column * cellWidth + cellWidth * 0.5
         y = fromIntegral row * cellHeight + cellHeight * 0.5
 
@@ -76,9 +118,7 @@ possibleCellsOfBoard = cellsOfBoard board (Possible [Int]) possibleCell
 fixedCellsOfBoard :: Board -> Picture
 fixedCellsOfBoard = cellsOfBoard board (Fixed Int) fixedCell
 
-
-
-boardAsSolvedPicture solved = color  (boardAsPicture board)
+boardAsSolvedPicture solved = color (boardAsPicture board)
 
 solverAsPicture :: SudokuSolver -> Picture
 solverAsPicture solve =
@@ -87,3 +127,4 @@ solverAsPicture solve =
     Solved board -> boardAsSolvedPicture board (gameBoard solve)
 
 
+-}
