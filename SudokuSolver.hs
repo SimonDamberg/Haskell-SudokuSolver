@@ -1,16 +1,45 @@
-module Solver where
+module SudokuSolver where
 
 import Data.List
 import Data.List.Split
 import Data.Function
 import Control.Applicative
 import Test.HUnit
+import Data.Array
 
 data Cell = Fixed Int | Possible [Int] deriving (Show, Eq)
+
+data Unsolved = Solving | Solved  deriving (Show, Eq)
 
 type Row = [Cell]
 
 type Board = [Row]
+
+data Solver = Solver { solverBoard :: Board
+                     , solverCell :: Cell
+                     , unsolved :: Unsolved
+                     } deriving (Eq,Show)
+n :: Int
+n = 9
+
+screenWidth :: Int
+screenWidth = 640
+
+screenHeight :: Int
+screenHeight = 480
+
+cellWidth :: Float
+cellWidth = fromIntegral screenWidth / fromIntegral n
+
+
+cellHeight :: Float
+cellHeight = fromIntegral screenHeight / fromIntegral n
+
+
+initialSolver = Solver {solverBoard = array indexRange $ zip (range indexRange) [Possible] 
+                       , unsolved = Solving
+                       }
+  where indexRange = ((0,0), (n-1,n-1))
 
 {-solve board
 Solves board-}
