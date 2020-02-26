@@ -1,8 +1,13 @@
-module Rendering where
-
+import System.Environment
+<<<<<<< Updated upstream
+import System.Exit
+=======
+import System.Random
+>>>>>>> Stashed changes
 import Graphics.Gloss
 import Graphics.Gloss.Data.Color
-
+import Graphics.Gloss.Interface.IO.Game
+import System.Random 
 import SudokuSolver
 
 n :: Int
@@ -23,26 +28,44 @@ cellHeight = (fromIntegral screenHeight / fromIntegral n)
 fixedColor = makeColorI 53 152 55 255
 
 window :: Display
-window = InWindow "Sudoku Solver" (720, 720) (100, 100)
+window = FullScreen
+--inWindow "Sudoku Solver" (720, 720) (100, 100)
 
 backgroundColor = white
 
-makeBoardIO :: Board -> IO Board
-makeBoardIO board = return board
+randSudokuBoard x board = makeBoard $ take 81 $ drop (81 * x) board
 
 main :: IO ()
 main = do
-  board <- makeBoardIO (makeBoard "*******12*5*4************3*7**6**4****1**********8****92****8*****51*7*******3***")
-  play window backgroundColor 30 (board) displayBoardOnGrid eventBoard floatBoard 
+<<<<<<< Updated upstream
+  boardList <- readFile "sudoku17.txt"
+  game boardList
 
---eventBoard :: Event -> Board -> Board
-eventBoard event board = board
+game :: String -> IO ()
+game boardList = do
+  newBoard <- return $ makeBoard $ take 81 boardList
+  playIO window backgroundColor 30 newBoard displayBoardOnGrid eventBoard floatBoard
+  game (drop 81 boardList)
 
---floatBoard :: Float -> Board -> Board
-floatBoard float board = board
-
-displayBoardOnGrid :: Board -> Picture
-displayBoardOnGrid board = translate (fromIntegral screenWidth * (-0.5)) (fromIntegral screenHeight * (-0.5))(pictures ((displayBoardOnGrid' (zip [0..80] $ concat board)) ++ [gridBoard]))
+eventBoard :: Event -> Board -> IO Board
+=======
+  boardArg <- readFile "sudoku17.txt"
+  randInt <- randomRIO (1, 49000) :: IO Int
+  board <- return $ randSudokuBoard randInt boardArg
+  play window backgroundColor 30 board displayBoardOnGrid eventBoard floatBoard
+  
+>>>>>>> Stashed changes
+eventBoard event board = case event of
+  EventKey (SpecialKey KeySpace) _ _ _ -> case solve board of
+                    Just a -> return a
+                    _ -> return board
+  EventKey (SpecialKey KeyRight) _ _ _ -> return ()
+  _ -> return board
+              
+floatBoard float board = return board
+    
+displayBoardOnGrid :: Board -> IO Picture
+displayBoardOnGrid board = return (translate (fromIntegral screenWidth * (-0.5)) (fromIntegral screenHeight * (-0.5)) (pictures ((displayBoardOnGrid' (zip [0..80] $ concat board)) ++ [gridBoard])))
 
 displayBoardOnGrid' :: [(Int, Cell)] -> [Picture]
 displayBoardOnGrid' [] = []
@@ -50,7 +73,7 @@ displayBoardOnGrid' (x:xs) = [displayCell x] ++  displayBoardOnGrid' xs
 
 displayCell (i, val) =
   case val of
-    Fixed num -> translate (((fromIntegral (i `mod` 9) :: Float) * cellWidth) + 17) (((fromIntegral (i `div` 9) :: Float) * cellHeight) + 9.5) (color fixedColor $ scale 0.60 0.60 $ text $ show num)
+    Fixed num -> translate (((fromIntegral (i `mod` 9) :: Float) * cellWidth) + 17) (((fromIntegral (8 - (i `div` 9)) :: Float) * cellHeight) + 9.5) (color fixedColor $ scale 0.60 0.60 $ text $ show num)
     _         -> Blank
 
 gridBoard :: Picture
@@ -103,6 +126,7 @@ possibleCell = Blank
 fixedCell :: Picture
 fixdCell = Blank
 
+cellsOfBoard :: (Board, Board) -> Cell -> Picture -> Picture
 
 cellsOfBoard :: Board -> Cell -> Picture -> Picture
 cellsOfBoard board cell cellPicture =
