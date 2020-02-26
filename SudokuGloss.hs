@@ -48,7 +48,7 @@ eventBoard event board = case event of
   EventKey (SpecialKey KeySpace) _ _ _ -> case solve board of
                     Just a -> return a
                     _ -> return board
-  EventKey (SpecialKey KeyRight) _ _ _ -> exitWith ExitSuccess
+  EventKey (SpecialKey KeyRight) _ _ _ -> return ()
   _ -> return board
               
 floatBoard float board = return board
