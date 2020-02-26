@@ -14,12 +14,12 @@ type Board = [Row]
 
 {-solve board
 Solves board-}
-solve :: Board -> [(Board, Board)]-> Maybe [(Board, Board)]
+solve :: Board -> [(Board, Board)]-> Maybe[Board]
 solve board acc = solve' (checkBoard board) acc
   where
     solve' board acc
       | possibleEmpty board = Nothing
-      | finishedBoard board = Just acc
+      | finishedBoard board = Just [n |(a,b)<- acc ,n <-[a,b]]
       | otherwise           = let acc2 = newBoard board acc
                                   (board1, board2) = acc2 !! 0
                               in solve board1 acc2 <|> solve board2 acc2

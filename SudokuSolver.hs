@@ -73,8 +73,8 @@ makeBoard string
 {- displayBoard board
 Converts the board into graphical rows
 -}
-displayBoard :: [(Board, Board)] -> String
-displayBoard board = unlines (map displayBoard' (fst (head(board))))
+displayBoard :: Board -> String
+displayBoard board = unlines (map displayBoard' board)
   where
     displayBoard' [] = []
     displayBoard' (x:xs) =

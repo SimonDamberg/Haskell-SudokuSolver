@@ -28,16 +28,14 @@ randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
 
 main :: IO ()
 main = do
-  boardFile <- readFile "sudoku17.txt"
-  let boards = lines boardFile
-  randInt <- randomRIO (1, 49000) :: IO Int
-  board <- (randSudokuBoard randInt boards)
+  board <- fixNewBoard
   playIO FullScreen white 30 board displayBoardOnGrid eventBoard floatBoard
-  
+
+eventBoard :: Event -> [Board] -> IO [Board]  
 eventBoard event board = case event of
-  EventKey (SpecialKey KeySpace) _ _ _ -> case solve board of
-                    Just a -> return a
-                    _ -> return board
+  EventKey (SpecialKey KeySpace) _ _ _ -> case solve (head board) [] of
+                    Just solved -> return solved
+                    _ -> return board                    
   EventKey (Char 'r') Down _ _ -> fixNewBoard
   EventKey (SpecialKey KeyEsc) _ _ _ -> exitSuccess
   _ -> return board
@@ -47,12 +45,16 @@ fixNewBoard = do
   let boards = lines boardFile
   randInt <- randomRIO (1, 49000) :: IO Int
   board <- (randSudokuBoard randInt boards)
-  return board
-                        
-floatBoard float board = return board
+  return [board]
+
+floatBoard :: Float -> [Board] -> IO [Board]
+floatBoard float board
+  | length board <= 1 = return board
+  | otherwise = return $ init board
     
-displayBoardOnGrid :: Board -> IO Picture
-displayBoardOnGrid board = return (translate (fromIntegral screenWidth * (-0.5)) (fromIntegral screenHeight * (-0.5)) (pictures ((displayBoardOnGrid' (zip [0..80] $ concat board)) ++ [gridBoard])))
+displayBoardOnGrid :: [Board] -> IO Picture
+displayBoardOnGrid [] = return $ translate (fromIntegral screenWidth * (-0.5)) (fromIntegral screenHeight * (-0.5)) gridBoard
+displayBoardOnGrid board = return (translate (fromIntegral screenWidth * (-0.5)) (fromIntegral screenHeight * (-0.5)) (pictures ((displayBoardOnGrid' (zip [0..80] $ concat $ last board)) ++ [gridBoard])))
 
 displayBoardOnGrid' :: [(Int, Cell)] -> [Picture]
 displayBoardOnGrid' [] = []
