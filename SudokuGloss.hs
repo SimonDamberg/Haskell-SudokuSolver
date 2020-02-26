@@ -1,8 +1,9 @@
 import System.Environment
+import System.Exit
 import Graphics.Gloss
 import Graphics.Gloss.Data.Color
-import Graphics.Gloss.Interface.Pure.Game
-
+import Graphics.Gloss.Interface.IO.Game
+import System.Random 
 import SudokuSolver
 
 n :: Int
@@ -33,20 +34,27 @@ makeBoardIO board = return board
 
 main :: IO ()
 main = do
-  boardArg <- getArgs
-  board <- return (makeBoard (head boardArg))
-  play window backgroundColor 30 (board) displayBoardOnGrid eventBoard floatBoard
-  
+  boardList <- readFile "sudoku17.txt"
+  game boardList
+
+game :: String -> IO ()
+game boardList = do
+  newBoard <- return $ makeBoard $ take 81 boardList
+  playIO window backgroundColor 30 newBoard displayBoardOnGrid eventBoard floatBoard
+  game (drop 81 boardList)
+
+eventBoard :: Event -> Board -> IO Board
 eventBoard event board = case event of
   EventKey (SpecialKey KeySpace) _ _ _ -> case solve board of
-                    Just a -> a
-                    _ -> board
-  _ -> board
+                    Just a -> return a
+                    _ -> return board
+  EventKey (SpecialKey KeyRight) _ _ _ -> exitWith ExitSuccess
+  _ -> return board
               
-floatBoard float board = board
+floatBoard float board = return board
     
-displayBoardOnGrid :: Board -> Picture
-displayBoardOnGrid board = translate (fromIntegral screenWidth * (-0.5)) (fromIntegral screenHeight * (-0.5)) (pictures ((displayBoardOnGrid' (zip [0..80] $ concat board)) ++ [gridBoard]))
+displayBoardOnGrid :: Board -> IO Picture
+displayBoardOnGrid board = return (translate (fromIntegral screenWidth * (-0.5)) (fromIntegral screenHeight * (-0.5)) (pictures ((displayBoardOnGrid' (zip [0..80] $ concat board)) ++ [gridBoard])))
 
 displayBoardOnGrid' :: [(Int, Cell)] -> [Picture]
 displayBoardOnGrid' [] = []
