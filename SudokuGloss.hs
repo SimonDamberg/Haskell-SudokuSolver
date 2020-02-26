@@ -4,23 +4,13 @@ import System.Exit
 import Graphics.Gloss
 import Graphics.Gloss.Data.Color
 import Graphics.Gloss.Interface.IO.Game
-import System.Random 
 import SudokuSolver
 
-n :: Int
-n = 9
-
-screenWidth :: Int
-screenWidth = 720
-
-screenHeight :: Int
-screenHeight = 720
-
 cellWidth :: Float
-cellWidth = fromIntegral screenWidth / fromIntegral n
+cellWidth = fromIntegral 720 / fromIntegral 9
 
 cellHeight :: Float
-cellHeight = (fromIntegral screenHeight / fromIntegral n)
+cellHeight = fromIntegral 720 / fromIntegral 9
 
 fixedColor = makeColorI 53 152 55 255
 
@@ -29,12 +19,12 @@ randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
 main :: IO ()
 main = do
   board <- fixNewBoard
-  playIO FullScreen white 30 board displayBoardOnGrid eventBoard floatBoard
-  
+  playIO FullScreen white 6 board displayBoardOnGrid eventBoard floatBoard
+
+eventBoard :: Event -> [Board] -> IO [Board]  
 eventBoard event board = case event of
-  EventKey (SpecialKey KeySpace) _ _ _ -> case solve board of
-                    Just a -> return a
-                    _ -> return board
+  EventKey (SpecialKey KeySpace) Down _ _ -> case solve (head board) [] of
+                    Just solved -> return solved           
   EventKey (Char 'r') Down _ _ -> fixNewBoard
   EventKey (SpecialKey KeyEsc) _ _ _ -> exitSuccess
   _ -> return board
@@ -43,13 +33,16 @@ fixNewBoard = do
   boardFile <- readFile "sudoku17.txt"
   let boards = lines boardFile
   randInt <- randomRIO (1, 49000) :: IO Int
-  board <- (randSudokuBoard randInt boards)
-  return board
-                        
-floatBoard float board = return board
+  board <- (randSudokuBoard randInt boards) 
+  return [board]
+
+floatBoard :: Float -> [Board] -> IO [Board]
+floatBoard float board
+  | length board <= 1 = return board
+  | otherwise = return $ init board
     
-displayBoardOnGrid :: Board -> IO Picture
-displayBoardOnGrid board = return (translate (fromIntegral screenWidth * (-0.5)) (fromIntegral screenHeight * (-0.5)) (pictures ((displayBoardOnGrid' (zip [0..80] $ concat board)) ++ [gridBoard])))
+displayBoardOnGrid :: [Board] -> IO Picture
+displayBoardOnGrid board = return (translate (fromIntegral 720 * (-0.5)) (fromIntegral 720 * (-0.5)) (pictures ((displayBoardOnGrid' (zip [0..80] $ concat $ last board)) ++ [gridBoard] ++ [thickBoard])))
 
 displayBoardOnGrid' :: [(Int, Cell)] -> [Picture]
 displayBoardOnGrid' [] = []
@@ -59,80 +52,28 @@ displayCell (i, val) =
   case val of
     Fixed num -> translate (((fromIntegral (i `mod` 9) :: Float) * cellWidth) + 17) (((fromIntegral (8 - (i `div` 9)) :: Float) * cellHeight) + 9.5) (color fixedColor $ scale 0.60 0.60 $ text $ show num)
     _         -> Blank
-
+    
 gridBoard :: Picture
 gridBoard =
   pictures
   $ concatMap (\i -> [ line [ (i * cellWidth, 0.0)
-                            , (i * cellWidth, fromIntegral screenHeight)
+                            , (i * cellWidth, fromIntegral 720)
                             ]
                      , line [ (0.0,                      i * cellHeight)
-                            , (fromIntegral screenWidth, i * cellHeight)
+                            , (fromIntegral 720, i * cellHeight)
                             ]
                      ])
-  [0.0..fromIntegral n]
+  [0.0..fromIntegral 9]
 
-  
-{-
-main :: IO ()
-main = backgroundColor 30 initialSolver boardAsPicture transfromSolver (const id)
-
-
-
-boardAsUnsolved board = Blank
-
-boardAsSolved solved board = Blank
-
-startValues :: Board -> Picture
-startValues = undefined
-
-solvedValues :: Board -> Picture
-solvedValues = undefined
-
-boardGrid :: Board -> Picture
-
-boardAsPicture board =
-  pictures []
-
-
-
-boardAsSolvingPicture board =
-
-boardAsPicture board = Blank
-
-snapPictureToCell picture (row, column) = translate x y picture
-  where x = fromIntegral column * cellWidth + cellWidth * 0.5
-        y = fromIntegral row * cellHeight + cellHeight * 0.5
-
-possibleCell :: Picture
-possibleCell = Blank
-
-fixedCell :: Picture
-fixdCell = Blank
-
-cellsOfBoard :: (Board, Board) -> Cell -> Picture -> Picture
-
-cellsOfBoard :: Board -> Cell -> Picture -> Picture
-cellsOfBoard board cell cellPicture =
+thickBoard :: Picture
+thickBoard =
   pictures
-  $ map (snapPictureToCell cellPicture . fst)
-  $ filter (\(_,e) -> e == cell  
-  $ assoc board
+  $ concatMap (\i -> [ line [ (i * cellWidth, 0.0)
+                            , (i * cellWidth, fromIntegral 720)
+                            ]
+                     , line [ (0.0,                      i * cellHeight)
+                            , (fromIntegral 720, i * cellHeight)
+                            ]
+                     ])
+  [0.01, 3.01, 6.01, 2.99, 5.99, 8.98, 8.99]
 
-possibleCellsOfBoard :: Board -> Picture
-possibleCellsOfBoard = cellsOfBoard board (Possible [Int]) possibleCell
-
-
-fixedCellsOfBoard :: Board -> Picture
-fixedCellsOfBoard = cellsOfBoard board (Fixed Int) fixedCell
-
-boardAsSolvedPicture solved = color (boardAsPicture board)
-
-solverAsPicture :: SudokuSolver -> Picture
-solverAsPicture solve =
-  case solverBoard solve of
-    Unsolved -> boardAsSolvingPicture (solverBoard solve)
-    Solved board -> boardAsSolvedPicture board (gameBoard solve)
-
-
--}
