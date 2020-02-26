@@ -1,4 +1,4 @@
-module Solver where
+module SudokuSolver where
 
 import Data.List
 import Data.List.Split
@@ -60,10 +60,9 @@ finishedBoard board = (length (foldl (++) "" (map finishedBoard' board))) == 81
 {- makeBoard string
 Creates a board with all possible values in cells from a string
 -}
-makeBoard :: String -> Maybe Board
+makeBoard :: String -> Board
 makeBoard string
- | length string == 81 = Just (map makeBoard' (chunksOf 9 string))
- | otherwise           = Nothing
+ | length string == 81 = (map makeBoard' (chunksOf 9 string))
    where
      makeBoard' [] = []
      makeBoard' (x:xs)
@@ -124,7 +123,7 @@ possibleEmpty board = length (foldl (++) "" (map possibleEmpty' board)) > 0
         _ -> "" ++ possibleEmpty' xs
 
 
-test1 = TestCase $ assertEqual "Display board" ("* * * * * * * 1 * \n4 * * * * * * * * \n* 2 * * * * * * * \n* * * * 5 * 4 * 7 \n* * 8 * * * 3 * * \n* * 1 * 9 * * * * \n3 * * 4 * * 2 * * \n* 5 * 1 * * * * * \n* * * 8 * 6 * * * \n") (let Just board = makeBoard "*******1*4*********2***********5*4*7**8***3****1*9****3**4**2***5*1********8*6***" in displayBoard board)
-test2 = TestCase $ assertEqual "Finished Board" True (let Just board = makeBoard "123456789123456789123456789123456789123456789123456789123456789123456789123456789" in finishedBoard board)
+test1 = TestCase $ assertEqual "Display board" ("* * * * * * * 1 * \n4 * * * * * * * * \n* 2 * * * * * * * \n* * * * 5 * 4 * 7 \n* * 8 * * * 3 * * \n* * 1 * 9 * * * * \n3 * * 4 * * 2 * * \n* 5 * 1 * * * * * \n* * * 8 * 6 * * * \n") (let board = makeBoard "*******1*4*********2***********5*4*7**8***3****1*9****3**4**2***5*1********8*6***" in displayBoard board)
+test2 = TestCase $ assertEqual "Finished Board" True (let board = makeBoard "123456789123456789123456789123456789123456789123456789123456789123456789123456789" in finishedBoard board)
 
 runtests = runTestTT $ TestList [test1, test2]                                 
