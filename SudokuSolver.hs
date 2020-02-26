@@ -14,19 +14,21 @@ type Board = [Row]
 
 {-solve board
 Solves board-}
-solve :: Board -> Maybe Board
-solve board = solve' $ checkBoard board
+solve :: Board -> [(Board, Board)]-> Maybe[Board]
+solve board acc = solve' (checkBoard board) acc
   where
-    solve' board
+    solve' board acc
       | possibleEmpty board = Nothing
-      | finishedBoard board = Just board
-      | otherwise           = let (board1, board2) = newBoard board in solve board1 <|> solve board2
+      | finishedBoard board = Just [n |(a,b)<- acc ,n <-[a,b]]
+      | otherwise           = let acc2 = newBoard board acc
+                                  (board1, board2) = acc2 !! 0
+                              in solve board1 acc2 <|> solve board2 acc2
 
 {- nextBoard board
 Creates two possible boards from board
 -}
-newBoard :: Board -> (Board, Board)
-newBoard board = (returnToBoard (replace i first board), returnToBoard (replace i rest board))
+newBoard :: Board -> [(Board, Board)] -> [(Board, Board)]
+newBoard board acc = [(returnToBoard (replace i first board), returnToBoard (replace i rest board))] ++ acc
    where
     (i, first, rest) = fixCell (minimumBy (compare `on` (posCount . snd)) $ filter (cellPossible . snd) $ zip [0..80] $ concat board)
 
@@ -72,7 +74,7 @@ makeBoard string
 Converts the board into graphical rows
 -}
 displayBoard :: Board -> String
-displayBoard board = unlines (map displayBoard' (board))
+displayBoard board = unlines (map displayBoard' board)
   where
     displayBoard' [] = []
     displayBoard' (x:xs) =
@@ -120,8 +122,9 @@ possibleEmpty board = length (foldl (++) "" (map possibleEmpty' board)) > 0
         Possible x -> if x == [] then "0"  else "" ++ possibleEmpty' xs
         _ -> "" ++ possibleEmpty' xs
 
-
+{-
 test1 = TestCase $ assertEqual "Display board" ("* * * * * * * 1 * \n4 * * * * * * * * \n* 2 * * * * * * * \n* * * * 5 * 4 * 7 \n* * 8 * * * 3 * * \n* * 1 * 9 * * * * \n3 * * 4 * * 2 * * \n* 5 * 1 * * * * * \n* * * 8 * 6 * * * \n") (let board = makeBoard "*******1*4*********2***********5*4*7**8***3****1*9****3**4**2***5*1********8*6***" in displayBoard board)
 test2 = TestCase $ assertEqual "Finished Board" True (let board = makeBoard "123456789123456789123456789123456789123456789123456789123456789123456789123456789" in finishedBoard board)
 
 runtests = runTestTT $ TestList [test1, test2]                                 
+-}
