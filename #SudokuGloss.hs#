@@ -1,4 +1,5 @@
 import System.Environment
+import System.Random
 import System.Exit
 import Graphics.Gloss
 import Graphics.Gloss.Data.Color
@@ -23,34 +24,31 @@ cellHeight = (fromIntegral screenHeight / fromIntegral n)
 
 fixedColor = makeColorI 53 152 55 255
 
-window :: Display
-window = FullScreen
---inWindow "Sudoku Solver" (720, 720) (100, 100)
-
-backgroundColor = white
-
-makeBoardIO :: Board -> IO Board
-makeBoardIO board = return board
+randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
 
 main :: IO ()
 main = do
-  boardList <- readFile "sudoku17.txt"
-  game boardList
-
-game :: String -> IO ()
-game boardList = do
-  newBoard <- return $ makeBoard $ take 81 boardList
-  playIO window backgroundColor 30 newBoard displayBoardOnGrid eventBoard floatBoard
-  game (drop 81 boardList)
-
-eventBoard :: Event -> Board -> IO Board
+  boardFile <- readFile "sudoku17.txt"
+  let boards = lines boardFile
+  randInt <- randomRIO (1, 49000) :: IO Int
+  board <- (randSudokuBoard randInt boards)
+  playIO FullScreen white 30 board displayBoardOnGrid eventBoard floatBoard
+  
 eventBoard event board = case event of
   EventKey (SpecialKey KeySpace) _ _ _ -> case solve board of
                     Just a -> return a
                     _ -> return board
-  EventKey (SpecialKey KeyRight) _ _ _ -> 
+  EventKey (Char 'r') Down _ _ -> fixNewBoard
+  EventKey (SpecialKey KeyEsc) _ _ _ -> exitSuccess
   _ -> return board
-              
+
+fixNewBoard = do 
+  boardFile <- readFile "sudoku17.txt"
+  let boards = lines boardFile
+  randInt <- randomRIO (1, 49000) :: IO Int
+  board <- (randSudokuBoard randInt boards)
+  return board
+                        
 floatBoard float board = return board
     
 displayBoardOnGrid :: Board -> IO Picture

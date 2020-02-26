@@ -28,10 +28,7 @@ randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
 
 main :: IO ()
 main = do
-  boardFile <- readFile "sudoku17.txt"
-  let boards = lines boardFile
-  randInt <- randomRIO (1, 49000) :: IO Int
-  board <- (randSudokuBoard randInt boards)
+  board <- fixNewBoard
   playIO FullScreen white 30 board displayBoardOnGrid eventBoard floatBoard
   
 eventBoard event board = case event of
