@@ -25,14 +25,17 @@ main = do
   board <- fixNewBoard
   playIO FullScreen white 6 board displayBoardOnGrid eventBoard floatBoard
 
+{-fixNewBoard
+  Reads a file with 49000 sudokus, and randomly chooses one of these and returns it as a list
+-}
 fixNewBoard = do
   boardFile <- readFile "sudoku17.txt"
   let boards = lines boardFile
   randInt <- randomRIO (1, 49000) :: IO Int
   board <- (randSudokuBoard randInt boards) 
   return [board]
-  
-randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
+    where
+      randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
 
 {- eventBoard event startList
    Does specific actions when some key is pressed. If the key is space, it solves the board, if r then a new board is displayed, if esc it exits the program. Otherwise it just returns the input
@@ -46,19 +49,6 @@ eventBoard event board = case event of
   EventKey (Char 'r') Down _ _ -> fixNewBoard
   EventKey (SpecialKey KeyEsc) _ _ _ -> exitSuccess
   _ -> return board
-
-{-fixNewBoard
-  Reads a file with 49000 sudokus, and randomly chooses one of these and returns it as a list
-
--}
-fixNewBoard = do
-  boardFile <- readFile "sudoku17.txt"
-  let boards = lines boardFile
-  randInt <- randomRIO (1, 49000) :: IO Int
-  board <- (randSudokuBoard randInt boards)
-  return [board]
-  where
-    randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
   
 {- floatBoard float startList
    Updates the list of boards every tick of the playIO-loop
@@ -77,17 +67,7 @@ floatBoard float board
    EXAMPLE:  see appendix in project document
 -}
 displayBoardOnGrid :: [Board] -> IO Picture
-displayBoardOnGrid board = return (translate (fromIntegral 720 * (-0.5)) (fromIntegral 720 * (-0.5)) (pictures ((displayBoardOnGrid' (zip [0..80] $ concat $ last board)) ++ [gridBoard] ++ [thickBoard])))
-
-{- displayBoardOnGrid' tupleList 
-   Splits a list of tuples into the first and the rest. Recursively runs the function displayCell on the first, and then the function again on the rest.
-   RETURNS: A list of pictures with a specific position for all 81 cells in tupleList
-   EXAMPLES: see appendix in project document
--}
-displayBoardOnGrid' :: [(Int, Cell)] -> [Picture]
---VARIANT: length list
-displayBoardOnGrid' [] = []
-displayBoardOnGrid' (x:xs) = [displayCell x] ++  displayBoardOnGrid' xs
+displayBoardOnGrid board = return (translate (fromIntegral 720 * (-0.5)) (fromIntegral 720 * (-0.5)) (pictures ((map displayCell (zip [0..80] $ concat $ last board)) ++ [gridBoard] ++ [thickBoard])))
 
 {- displayCell (pos, value)
    Displays all the cells of the board. If a cell is fixed, then that number is written out and put in the position according to its number in the tuple. If a cell isn't fixed then a blank square is written out at the right position.

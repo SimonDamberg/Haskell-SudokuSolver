@@ -40,13 +40,13 @@ solve board acc = solve' (checkBoard board) acc
       | otherwise           = let acc2 = newBoard board acc
                                   (board1, board2) = acc2 !! 0
                               in solve board1 acc2 <|> solve board2 acc2
+
 {- newBoard board acc
      finds the cell with the least amount of possible numbers and fixes 
      PRE: length board == 81
      RETURNS: (board with a cell fixed to a num, board with a cell fixed to another num or fewer possible nums):acc
      EXAMPLES: see appendix in project document
   -}
-
 newBoard :: Board -> [(Board, Board)] -> [(Board, Board)]
 newBoard board acc = [(returnToBoard (replace i first board), returnToBoard (replace i rest board))] ++ acc
    where
@@ -54,7 +54,6 @@ newBoard board acc = [(returnToBoard (replace i first board), returnToBoard (rep
 
     -- turns a board with position i into a regular board 
     returnToBoard board = chunksOf 9 $ map snd board
-
 
     -- replaces the cell at position i with val 
     replace i val board = let (first,last) = splitAt i (zip [0..80] $ concat board) in first ++ [(i,val)] ++ (tail last)
@@ -70,7 +69,7 @@ newBoard board acc = [(returnToBoard (replace i first board), returnToBoard (rep
     -- fixes a possible cell at position i in two possible ways 
     fixCell (i, Possible [x, y]) = (i, Fixed x, Fixed y)
     fixCell (i, Possible (x:xs)) = (i, Fixed x, Possible xs)
-
+    
 {- finishedBoard board
      Checks if a board is complete
      PRE: length board == 81
