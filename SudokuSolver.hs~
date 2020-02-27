@@ -24,14 +24,14 @@ solve board acc = solve' (checkBoard board) acc
                                   (board1, board2) = acc2 !! 0
                               in solve board1 acc2 <|> solve board2 acc2
 
-{- nextBoard board
+{- newBoard board
 Creates two possible boards from board
 -}
 newBoard :: Board -> [(Board, Board)] -> [(Board, Board)]
 newBoard board acc = [(returnToBoard (replace i first board), returnToBoard (replace i rest board))] ++ acc
    where
     (i, first, rest) = fixCell (minimumBy (compare `on` (posCount . snd)) $ filter (cellPossible . snd) $ zip [0..80] $ concat board)
-
+  
 returnToBoard board = chunksOf 9 $ map snd board
 
 replace i val board = let (first,last) = splitAt i (zip [0..80] $ concat board) in first ++ [(i,val)] ++ (tail last)
@@ -44,6 +44,8 @@ posCount (Fixed _)     = 1
 
 fixCell (i, Possible [x, y]) = (i, Fixed x, Fixed y)
 fixCell (i, Possible (x:xs)) = (i, Fixed x, Possible xs)
+fixCell _                    = error "Impossible case"
+
 
 {- finishedBoard board
 Checks if all cells are filled with one value
@@ -73,8 +75,8 @@ makeBoard string
 {- displayBoard board
 Converts the board into graphical rows
 -}
-displayBoard :: [(Board, Board)] -> String
-displayBoard board = unlines (map displayBoard' (fst (head(board))))
+displayBoard :: Board -> String
+displayBoard board = unlines (map displayBoard' board)
   where
     displayBoard' [] = []
     displayBoard' (x:xs) =
