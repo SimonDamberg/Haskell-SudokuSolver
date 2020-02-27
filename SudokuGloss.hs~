@@ -24,12 +24,20 @@ cellHeight = (fromIntegral screenHeight / fromIntegral n)
 
 fixedColor = makeColorI 53 152 55 255
 
-randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
-
 main :: IO ()
 main = do
   board <- fixNewBoard
   playIO FullScreen white 30 board displayBoardOnGrid eventBoard floatBoard
+
+fixNewBoard = do
+  boardFile <- readFile "sudoku17.txt"
+  let boards = lines boardFile
+  randInt <- randomRIO (1, 49000) :: IO Int
+  board <- (randSudokuBoard randInt boards) 
+  return [board]
+
+randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
+
 
 eventBoard :: Event -> [Board] -> IO [Board]  
 eventBoard event board = case event of
@@ -40,6 +48,7 @@ eventBoard event board = case event of
   EventKey (SpecialKey KeyEsc) _ _ _ -> exitSuccess
   _ -> return board
 
+<<<<<<< Updated upstream
 fixNewBoard = do
   boardFile <- readFile "sudoku17.txt"
   let boards = lines boardFile
@@ -47,6 +56,8 @@ fixNewBoard = do
   board <- (randSudokuBoard randInt boards)
   return [board]
 
+=======
+>>>>>>> Stashed changes
 floatBoard :: Float -> [Board] -> IO [Board]
 floatBoard float board
   | length board <= 1 = return board
@@ -66,6 +77,7 @@ displayCell (i, val) =
     _         -> Blank
 
 gridBoard :: Picture
+<<<<<<< Updated upstream
 gridBoard =
   pictures
   $ concatMap (\i -> [ line [ (i * cellWidth, 0.0)
@@ -139,5 +151,11 @@ solverAsPicture solve =
     Unsolved -> boardAsSolvingPicture (solverBoard solve)
     Solved board -> boardAsSolvedPicture board (gameBoard solve)
 
+=======
+gridBoard = pictures $ concatMap (\i -> [line [(i * cellWidth, 0.0) ,(i * cellWidth, fromIntegral 720)], line [(0.0, i * cellHeight), (fromIntegral 720, i * cellHeight)]]) [0.0..fromIntegral 9]
+
+thickBoard :: Picture
+thickBoard = pictures $ concatMap (\i -> [line [(i * cellWidth, 0.0) ,(i * cellWidth, fromIntegral 720)], line [(0.0, i * cellHeight), (fromIntegral 720, i * cellHeight)]]) [0.01, 3.01, 6.01, 2.99, 5.99, 8.98, 8.99]
+>>>>>>> Stashed changes
 
 -}
