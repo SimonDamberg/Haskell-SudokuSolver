@@ -14,12 +14,19 @@ cellHeight = fromIntegral 720 / fromIntegral 9
 
 fixedColor = makeColorI 53 152 55 255
 
-randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
-
 main :: IO ()
 main = do
   board <- fixNewBoard
   playIO FullScreen white 6 board displayBoardOnGrid eventBoard floatBoard
+
+fixNewBoard = do
+  boardFile <- readFile "sudoku17.txt"
+  let boards = lines boardFile
+  randInt <- randomRIO (1, 49000) :: IO Int
+  board <- (randSudokuBoard randInt boards) 
+  return [board]
+
+randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
 
 eventBoard :: Event -> [Board] -> IO [Board]  
 eventBoard event board = case event of
@@ -53,27 +60,24 @@ displayCell (i, val) =
     Fixed num -> translate (((fromIntegral (i `mod` 9) :: Float) * cellWidth) + 17) (((fromIntegral (8 - (i `div` 9)) :: Float) * cellHeight) + 9.5) (color fixedColor $ scale 0.60 0.60 $ text $ show num)
     _         -> Blank
     
-gridBoard :: Picture
-gridBoard =
-  pictures
-  $ concatMap (\i -> [ line [ (i * cellWidth, 0.0)
-                            , (i * cellWidth, fromIntegral 720)
-                            ]
-                     , line [ (0.0,                      i * cellHeight)
-                            , (fromIntegral 720, i * cellHeight)
-                            ]
-                     ])
-  [0.0..fromIntegral 9]
+possibleCellsOfBoard :: Board -> Picture
+possibleCellsOfBoard = cellsOfBoard board (Possible [Int]) possibleCell
+
+
+fixedCellsOfBoard :: Board -> Picture
+fixedCellsOfBoard = cellsOfBoard board (Fixed Int) fixedCell
+
+boardAsSolvedPicture solved = color (boardAsPicture board)
+
+solverAsPicture :: SudokuSolver -> Picture
+solverAsPicture solve =
+  case solverBoard solve of
+    Unsolved -> boardAsSolvingPicture (solverBoard solve)
+    Solved board -> boardAsSolvedPicture board (gameBoard solve)
+
+gridBoard = pictures $ concatMap (\i -> [line [(i * cellWidth, 0.0) ,(i * cellWidth, fromIntegral 720)], line [(0.0, i * cellHeight), (fromIntegral 720, i * cellHeight)]]) [0.0..fromIntegral 9]
 
 thickBoard :: Picture
-thickBoard =
-  pictures
-  $ concatMap (\i -> [ line [ (i * cellWidth, 0.0)
-                            , (i * cellWidth, fromIntegral 720)
-                            ]
-                     , line [ (0.0,                      i * cellHeight)
-                            , (fromIntegral 720, i * cellHeight)
-                            ]
-                     ])
-  [0.01, 3.01, 6.01, 2.99, 5.99, 8.98, 8.99]
+thickBoard = pictures $ concatMap (\i -> [line [(i * cellWidth, 0.0) ,(i * cellWidth, fromIntegral 720)], line [(0.0, i * cellHeight), (fromIntegral 720, i * cellHeight)]]) [0.01, 3.01, 6.01, 2.99, 5.99, 8.98, 8.99]
+
 

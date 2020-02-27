@@ -12,116 +12,159 @@ type Row = [Cell]
 
 type Board = [Row]
 
-{-solve board
-Solves board-}
-solve :: Board -> [(Board, Board)]-> Maybe[Board]
+{- solve board acc
+     solves a given sudoku
+     PRE: legnth board == 81
+     RETURNS: a list of all the steps leading up to the solved board with the solved board as its head
+     EXAMPLES: see appendix in project document
+  -}
+solve :: Board -> [(Board, Board)]-> Maybe [Board] 
 solve board acc = solve' (checkBoard board) acc
   where
-    solve' board acc
-      | possibleEmpty board = Nothing
-      | finishedBoard board = Just [n |(a,b)<- acc ,n <-[a,b]]
+    -- VAIRANT: 
+    solve' board acc -- checks if board is finished or is no longer valid
+      | invalidBoard board = Nothing
+      | finishedBoard board = Just [n |(a,b) <- acc, n <- [a,b]] -- concat all tupels in acc to become a single list of all the steps leading up to the solution
       | otherwise           = let acc2 = newBoard board acc
                                   (board1, board2) = acc2 !! 0
                               in solve board1 acc2 <|> solve board2 acc2
 
-{- nextBoard board
-Creates two possible boards from board
--}
+{- newBoard board acc
+     finds the cell with the least amount of possible numbers and fixes 
+     PRE: length board == 81
+     RETURNS: (board with a cell fixed to a num, board with a cell fixed to another num or fewer possible nums):acc
+     EXAMPLES: see appendix in project document
+  -}
 newBoard :: Board -> [(Board, Board)] -> [(Board, Board)]
 newBoard board acc = [(returnToBoard (replace i first board), returnToBoard (replace i rest board))] ++ acc
    where
     (i, first, rest) = fixCell (minimumBy (compare `on` (posCount . snd)) $ filter (cellPossible . snd) $ zip [0..80] $ concat board)
 
-returnToBoard board = chunksOf 9 $ map snd board
+    -- turns a board with position i into a regular board 
+    returnToBoard board = chunksOf 9 $ map snd board
 
-replace i val board = let (first,last) = splitAt i (zip [0..80] $ concat board) in first ++ [(i,val)] ++ (tail last)
+    -- replaces the cell at position i with val 
+    replace i val board = let (first,last) = splitAt i (zip [0..80] $ concat board) in first ++ [(i,val)] ++ (tail last)
 
-cellPossible (Possible _) = True
-cellPossible _            = False
+    -- checks if a cell is fixed or not
+    cellPossible (Possible _) = True
+    cellPossible _            = False
 
-posCount (Possible xs) = length xs
-posCount (Fixed _)     = 1
+    -- checks the number of possible numbers in a cell
+    posCount (Possible xs) = length xs
+    posCount (Fixed _)     = 1
 
-fixCell (i, Possible [x, y]) = (i, Fixed x, Fixed y)
-fixCell (i, Possible (x:xs)) = (i, Fixed x, Possible xs)
+    -- fixes a possible cell at position i in two possible ways 
+    fixCell (i, Possible [x, y]) = (i, Fixed x, Fixed y)
+    fixCell (i, Possible (x:xs)) = (i, Fixed x, Possible xs)
 
 {- finishedBoard board
-Checks if all cells are filled with one value
--}
+     Checks if a board is complete
+     PRE: length board == 81
+     RETURNS: True if board has no possible cells, otherwise False
+     EXAMPLES: see appendix in project document
+  -}
 finishedBoard :: Board -> Bool
 finishedBoard board = (length (foldl (++) "" (map finishedBoard' board))) == 81
   where
+    -- VARIANT: length board
     finishedBoard' [] = []
     finishedBoard' (x:xs) =
       case x of
         Fixed x -> "0" ++ finishedBoard' xs
         _ -> "" ++ finishedBoard' xs
 
+{- invalidBoard board
+     Checks if a board has cells with no possible numbers, and is thereby invalid
+     PRE: length board == 81
+     RETURNS: True if board is invalid, otherwise False
+     EXAMPLES: see appendix in project document
+  -}
+invalidBoard :: Board -> Bool
+invalidBoard board = length (foldl (++) "" (map invalidBoard' board)) > 0
+  where
+    -- VARIANT: length board
+    invalidBoard' [] = []
+    invalidBoard' (x:xs) =
+      case x of
+        Possible x -> if x == [] then "0"  else "" ++ invalidBoard' xs
+        _ -> "" ++ invalidBoard' xs
+
 {- makeBoard string
-Creates a board with all possible values in cells from a string
--}
+     Constructs a board from a string
+     PRE: length string == 81, nonfixed cells labeled with '*'
+     RETURNS: a board corresponding to string
+     EXAMPLES: makeBoard "*******123******6*****4****9*****5*******1*7**2**********35*4****14**8***6*******" = [[Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],
+                                                                                                                 Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Fixed 1,Fixed 2], ...]
+  -}
 makeBoard :: String -> Board
 makeBoard string
  | length string == 81 = (map makeBoard' (chunksOf 9 string))
    where
+     -- VARIANT: length board
      makeBoard' [] = []
-     makeBoard' (x:xs)
+     makeBoard' (x:xs) -- constructs every cell in a row
        | x == '*' = [Possible [1..9]] ++ makeBoard' xs
        | otherwise = [Fixed (read [x] :: Int)] ++ makeBoard' xs
 
 
 {- displayBoard board
-Converts the board into graphical rows
--}
-displayBoard :: [(Board, Board)] -> String
-displayBoard board = unlines (map displayBoard' (fst (head(board))))
+     Constructs a printable string from a board
+     PRE: length board == 81
+     RETURNS: the string corresponding to board with \n at the end of each row
+     EXAMPLES: displayBoard $ makeBoard "*******123******6*****4****9*****5*******1*7**2**********35*4****14**8***6*******"
+               = "* * * * * * * 1 2 \n3 * * * * * * 6 * \n* * * * 4 * * * * \n9 * * * * * 5 * * \n* * * * * 1 * 7 * \n* 2 * * * * * * * \n* * * 3 5 * 4 * * \n* * 1 4 * * 8 * * \n* 6 * * * * * * * \n"
+  -}
+displayBoard :: Board -> String
+displayBoard board = unlines (map displayBoard' board)
   where
+    -- constructs a string of every cell in a row
     displayBoard' [] = []
     displayBoard' (x:xs) =
       case x of
       Fixed x -> show x ++ " " ++ displayBoard' xs
       _ -> "* " ++ displayBoard' xs
 
-{- checkRows Board
-Removes all fixed 
--}
+{- checkRows board 
+     Removes all fixed values from every possible cell in the row with fixed values
+     PRE: length board == 81
+     RETURNS: board with fixed values removed from possible cells in each row
+     EXAMPLES: checkRows $ makeBoard "*******123******6*****4****9*****5*******1*7**2**********35*4****14**8***6*******" = [[Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],
+                                                                                                                             Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Fixed 1,Fixed 2], ...]
+  -}
 checkRows :: Board -> Board
 checkRows [] = []
 checkRows board@(x:xs) = [checkRow x fixedCells] ++ checkRows xs
-  where fixedCells = [x | Fixed x <- x]
-
-checkRow :: Row -> [Int] -> Row
-checkRow [] fixedCells = []
-checkRow row@(x:xs) fixedCells =
-  case x of
-    Possible cell -> [Possible (cell \\ fixedCells)] ++ checkRow xs fixedCells
-    _             -> [x] ++ checkRow xs fixedCells
-  
-
-{- checkBoard board 
-Removes all Fixed cells from the 3x3 square, row and coloumn corresponding to the fixed cell
--}   
-checkBoard :: Board -> Board
-checkBoard board  = transpose $ checkRows $ transpose $ checkRows $ makeSquare $ checkRows $ makeSquare board
-
-makeSquare :: Board -> Board
-makeSquare [] = []
-makeSquare board = makeSquare' ((map (chunksOf 3) board))
-  where 
-    makeSquare' [] = []
-    makeSquare' (a:b:c:xs) = if null a then makeSquare' xs else [(concat square)] ++ (makeSquare' newBoard)
-      where square = (map head [a, b, c])
-            newBoard = (drop 1 a):(drop 1 b):(drop 1 c):xs
-
-possibleEmpty :: Board -> Bool
-possibleEmpty board = length (foldl (++) "" (map possibleEmpty' board)) > 0
   where
-    possibleEmpty' [] = []
-    possibleEmpty' (x:xs) =
-      case x of
-        Possible x -> if x == [] then "0"  else "" ++ possibleEmpty' xs
-        _ -> "" ++ possibleEmpty' xs
+    fixedCells = [x | Fixed x <- x]
 
+    -- removes all fixed values from the possible cells in a Row
+    checkRow [] fixedCells = []
+    checkRow row@(x:xs) fixedCells =
+      case x of
+        Possible cell -> [Possible (cell \\ fixedCells)] ++ checkRow xs fixedCells
+        _             -> [x] ++ checkRow xs fixedCells
+  
+{- checkBoard board
+     Removes all fixed values from possible cells in the 3x3 square, row and coloumn corresponding to a fixed cell
+     PRE: length board == 81
+     RETURNS: board with fixed values removed from possible cells
+     EXAMPLES: see appendix in project document
+  -}  
+checkBoard :: Board -> Board
+checkBoard board  = transpose $ checkRows $ transpose $ checkRows $ makeSquare $ checkRows $ makeSquare board -- calls checkRows on the rows, coloumns and 3x3 squares using transpose and makeSquare to convert from a regular Board
+  where
+    -- converts a list of rows into a list of the correct 3x3 squares 
+    makeSquare [] = []
+    makeSquare board = makeSquare' ((map (chunksOf 3) board))
+      where
+        -- concats all 3x3 sqaures into a Board for checkRows to use
+        makeSquare' [] = []
+        makeSquare' (a:b:c:xs) = if null a then makeSquare' xs else [(concat square)] ++ (makeSquare' newBoard)
+          where
+            square = (map head [a, b, c]) -- takes the first three cells in three rows, which makes up the correct 3x3 square
+            newBoard = (drop 1 a):(drop 1 b):(drop 1 c):xs
+            
 {-
 test1 = TestCase $ assertEqual "Display board" ("* * * * * * * 1 * \n4 * * * * * * * * \n* 2 * * * * * * * \n* * * * 5 * 4 * 7 \n* * 8 * * * 3 * * \n* * 1 * 9 * * * * \n3 * * 4 * * 2 * * \n* 5 * 1 * * * * * \n* * * 8 * 6 * * * \n") (let board = makeBoard "*******1*4*********2***********5*4*7**8***3****1*9****3**4**2***5*1********8*6***" in displayBoard board)
 test2 = TestCase $ assertEqual "Finished Board" True (let board = makeBoard "123456789123456789123456789123456789123456789123456789123456789123456789123456789" in finishedBoard board)
