@@ -29,7 +29,7 @@ main = do
   Reads a file with 49000 sudokus, and randomly chooses one of these and returns it as a list
 -}
 fixNewBoard = do
-  boardFile <- readFile "sudoku17.txt"
+  boardFile <- readFile "sudoku.txt"
   let boards = lines boardFile
   randInt <- randomRIO (1, 49000) :: IO Int
   board <- (randSudokuBoard randInt boards) 
