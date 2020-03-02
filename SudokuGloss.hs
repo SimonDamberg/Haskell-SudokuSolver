@@ -44,12 +44,12 @@ fixNewBoard = do
    EXAMPLES: Impossible to do examples
 -}
 eventBoard :: Event -> [Board] -> IO [Board]  
-eventBoard event board = case event of
-  EventKey (SpecialKey KeySpace) Down _ _ -> case solve (head board) [] of
+eventBoard event boards = case event of
+  EventKey (SpecialKey KeySpace) Down _ _ -> case solve (head boards) [] of
                     Just solved -> return solved           
   EventKey (Char 'r') Down _ _ -> fixNewBoard
   EventKey (SpecialKey KeyEsc) _ _ _ -> exitSuccess
-  _ -> return board
+  _ -> return boards
   
 {- floatBoard float startList
    Updates the list of boards every tick of the playIO-loop
@@ -58,9 +58,9 @@ eventBoard event board = case event of
 -}
 
 floatBoard :: Float -> [Board] -> IO [Board]
-floatBoard float board
-  | length board <= 1 = return board
-  | otherwise = return $ init board
+floatBoard float boards
+  | length boards <= 1 = return boards
+  | otherwise = return $ init boards
 
 {- displayBoardOnGrid boardList
    Displays the last element in boardList as a picture at a specific position. Also displays the grid and the extra thick grid on top of this.
