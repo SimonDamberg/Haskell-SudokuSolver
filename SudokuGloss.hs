@@ -28,6 +28,7 @@ main = do
 {-fixNewBoard
   Reads a file with 49000 sudokus, and randomly chooses one of these and returns it as a list
 -}
+fixNewBoard :: IO [Board]
 fixNewBoard = do
   boardFile <- readFile "sudoku.txt"
   let boards = lines boardFile
@@ -67,7 +68,7 @@ floatBoard float board
    EXAMPLE: Impossible to do examples
 -}
 displayBoardOnGrid :: [Board] -> IO Picture
-displayBoardOnGrid board = return (translate (fromIntegral 720 * (-0.5)) (fromIntegral 720 * (-0.5)) (pictures ((map displayCell (zip [0..80] $ concat $ last board)) ++ [gridBoard)))
+displayBoardOnGrid board = return (translate (fromIntegral 720 * (-0.5)) (fromIntegral 720 * (-0.5)) (pictures ((map displayCell (zip [0..80] $ concat $ last board)) ++ [gridBoard])))
 
 {- displayCell (pos, value)
    Displays all the cells of the board. If a cell is fixed, then that number is written out and put in the position according to its number in the tuple. If a cell isn't fixed then a blank square is written out at the right position.
