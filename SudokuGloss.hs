@@ -67,7 +67,7 @@ floatBoard float board
    EXAMPLE: Impossible to do examples
 -}
 displayBoardOnGrid :: [Board] -> IO Picture
-displayBoardOnGrid board = return (translate (fromIntegral 720 * (-0.5)) (fromIntegral 720 * (-0.5)) (pictures ((map displayCell (zip [0..80] $ concat $ last board)) ++ [gridBoard] ++ [thickBoard])))
+displayBoardOnGrid board = return (translate (fromIntegral 720 * (-0.5)) (fromIntegral 720 * (-0.5)) (pictures ((map displayCell (zip [0..80] $ concat $ last board)) ++ [gridBoard)))
 
 {- displayCell (pos, value)
    Displays all the cells of the board. If a cell is fixed, then that number is written out and put in the position according to its number in the tuple. If a cell isn't fixed then a blank square is written out at the right position.
@@ -86,12 +86,5 @@ displayCell (i, val) =
    EXAMPLES: Impossible to do examples
 -}
 gridBoard :: Picture
-gridBoard = pictures $ concatMap (\i -> [line [(i * cellWidth, 0.0) ,(i * cellWidth, fromIntegral 720)], line [(0.0, i * cellHeight), (fromIntegral 720, i * cellHeight)]]) [0.0..fromIntegral 9]
+gridBoard = pictures $ concatMap (\i -> [line [(i * cellWidth, 0.0) ,(i * cellWidth, fromIntegral 720)], line [(0.0, i * cellHeight), (fromIntegral 720, i * cellHeight)]]) ([0.0..fromIntegral 9] ++ [0.01, 3.01, 6.01, 2.99, 5.99, 8.98, 8.99])
 
-{- thickBoard
-   thickBoard makes a picture with extra thick lines every third line
-   RETURNS: A picture with thicker lines at line 1, 3, 6, 9 both horizontal and vertical
-   EXAMPLES: Impossible to do examples
--}
-thickBoard :: Picture
-thickBoard = pictures $ concatMap (\i -> [line [(i * cellWidth, 0.0) ,(i * cellWidth, fromIntegral 720)], line [(0.0, i * cellHeight), (fromIntegral 720, i * cellHeight)]]) [0.01, 3.01, 6.01, 2.99, 5.99, 8.98, 8.99]
