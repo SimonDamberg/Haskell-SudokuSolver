@@ -177,8 +177,6 @@ checkBoard board  = transpose $ checkRows $ transpose $ checkRows $ makeSquare $
             square = (map head [a, b, c]) -- takes the first three cells in three rows, which makes up the correct 3x3 square
             newBoard = (drop 1 a):(drop 1 b):(drop 1 c):xs
             
-{-
-
 test1 = TestCase $ assertEqual "Display board" ("* * * * * * * 1 * \n4 * * * * * * * * \n* 2 * * * * * * * \n* * * * 5 * 4 * 7 \n* * 8 * * * 3 * * \n* * 1 * 9 * * * * \n3 * * 4 * * 2 * * \n* 5 * 1 * * * * * \n* * * 8 * 6 * * * \n") (let board = makeBoard "*******1*4*********2***********5*4*7**8***3****1*9****3**4**2***5*1********8*6***" in displayBoard board)
 
 test2 = TestCase $ assertEqual "Finished Board" True (let board = makeBoard "123456789123456789123456789123456789123456789123456789123456789123456789123456789" in finishedBoard board)
@@ -187,7 +185,7 @@ test3 = TestCase $ assertEqual "Make Board" [[Possible [1,2,3,4,5,6,7,8,9],Possi
 
 test4 = TestCase $ assertEqual "Check Rows" [[Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Fixed 1,Fixed 2],[Possible [1,2,4,5,6,7,9],Possible [1,2,4,5,6,7,9],Fixed 8,Possible [1,2,4,5,6,7,9],Fixed 3,Possible [1,2,4,5,6,7,9],Possible [1,2,4,5,6,7,9],Possible [1,2,4,5,6,7,9],Possible [1,2,4,5,6,7,9]],[Possible [1,2,3,5,6,7,8,9],Possible [1,2,3,5,6,7,8,9],Possible [1,2,3,5,6,7,8,9],Possible [1,2,3,5,6,7,8,9],Possible [1,2,3,5,6,7,8,9],Possible [1,2,3,5,6,7,8,9],Possible [1,2,3,5,6,7,8,9],Fixed 4,Possible [1,2,3,5,6,7,8,9]],[Fixed 1,Fixed 2,Possible [3,4,6,7,8,9],Fixed 5,Possible [3,4,6,7,8,9],Possible [3,4,6,7,8,9],Possible [3,4,6,7,8,9],Possible [3,4,6,7,8,9],Possible [3,4,6,7,8,9]],[Possible [1,2,3,5,6,8,9],Possible [1,2,3,5,6,8,9],Possible [1,2,3,5,6,8,9],Possible [1,2,3,5,6,8,9],Possible [1,2,3,5,6,8,9],Fixed 4,Fixed 7,Possible [1,2,3,5,6,8,9],Possible [1,2,3,5,6,8,9]],[Possible [1,2,3,4,5,7,8,9],Fixed 6,Possible [1,2,3,4,5,7,8,9],Possible [1,2,3,4,5,7,8,9],Possible [1,2,3,4,5,7,8,9],Possible [1,2,3,4,5,7,8,9],Possible [1,2,3,4,5,7,8,9],Possible [1,2,3,4,5,7,8,9],Possible [1,2,3,4,5,7,8,9]],[Fixed 5,Possible [1,2,4,6,8,9],Fixed 7,Possible [1,2,4,6,8,9],Possible [1,2,4,6,8,9],Possible [1,2,4,6,8,9],Fixed 3,Possible [1,2,4,6,8,9],Possible [1,2,4,6,8,9]],[Possible [1,3,4,5,7,8,9],Possible [1,3,4,5,7,8,9],Possible [1,3,4,5,7,8,9],Fixed 6,Fixed 2,Possible [1,3,4,5,7,8,9],Possible [1,3,4,5,7,8,9],Possible [1,3,4,5,7,8,9],Possible [1,3,4,5,7,8,9]],[Possible [2,3,4,5,6,7,8,9],Possible [2,3,4,5,6,7,8,9],Possible [2,3,4,5,6,7,8,9],Fixed 1,Possible [2,3,4,5,6,7,8,9],Possible [2,3,4,5,6,7,8,9],Possible [2,3,4,5,6,7,8,9],Possible [2,3,4,5,6,7,8,9],Possible [2,3,4,5,6,7,8,9]]] (checkRows $ makeBoard "*******12**8*3***********4*12*5**********47***6*******5*7***3*****62*******1*****")
 
-test5 = TestCase $ assertEqual "Check Row" [Possible [],Possible [],Possible [],Possible [],Possible [],Possible [],Possible [],Fixed 1,Fixed 2] (checkRow (head (makeBoard "*******127***6***********5**8*2*****6*****4*****1*9****19**********3*8**5*2******")) [1,2,3,4,5,6,7,8,9])
+--test5 = TestCase $ assertEqual "Check Row" [Possible [],Possible [],Possible [],Possible [],Possible [],Possible [],Possible [],Fixed 1,Fixed 2] (checkRow (head (makeBoard "*******127***6***********5**8*2*****6*****4*****1*9****19**********3*8**5*2******")) [1,2,3,4,5,6,7,8,9])
 
 --test6 = TestCase $ assertEqual "Check Board"  
 {-
@@ -195,5 +193,5 @@ test7 = TestCase $ assertEqual ""
 test8 = TestCase $ assertEqual ""
 -}
 
-runtests = runTestTT $ TestList [test1, test2, test3, test4, test5]                                 
+runtests = runTestTT $ TestList [test1, test2, test3, test4]                                 
 
