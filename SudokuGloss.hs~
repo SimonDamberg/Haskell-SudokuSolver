@@ -25,14 +25,17 @@ main = do
   board <- fixNewBoard
   playIO FullScreen white 6 board displayBoardOnGrid eventBoard floatBoard
 
+{-fixNewBoard
+  Reads a file with 49000 sudokus, and randomly chooses one of these and returns it as a list
+-}
 fixNewBoard = do
   boardFile <- readFile "sudoku17.txt"
   let boards = lines boardFile
   randInt <- randomRIO (1, 49000) :: IO Int
   board <- (randSudokuBoard randInt boards) 
   return [board]
-  
-randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
+    where
+      randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
 
 {- eventBoard event startList
    Does specific actions when some key is pressed. If the key is space, it solves the board, if r then a new board is displayed, if esc it exits the program. Otherwise it just returns the input
@@ -46,19 +49,6 @@ eventBoard event board = case event of
   EventKey (Char 'r') Down _ _ -> fixNewBoard
   EventKey (SpecialKey KeyEsc) _ _ _ -> exitSuccess
   _ -> return board
-
-{-fixNewBoard
-  Reads a file with 49000 sudokus, and randomly chooses one of these and returns it as a list
-
--}
-fixNewBoard = do
-  boardFile <- readFile "sudoku17.txt"
-  let boards = lines boardFile
-  randInt <- randomRIO (1, 49000) :: IO Int
-  board <- (randSudokuBoard randInt boards)
-  return [board]
-  where
-    randSudokuBoard x boardList = return $ makeBoard $ head $ drop x boardList
   
 {- floatBoard float startList
    Updates the list of boards every tick of the playIO-loop
