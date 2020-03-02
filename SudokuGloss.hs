@@ -40,7 +40,7 @@ fixNewBoard = do
 {- eventBoard event startList
    Does specific actions when some key is pressed. If the key is space, it solves the board, if r then a new board is displayed, if esc it exits the program. Otherwise it just returns the input
    RETURNS: If space, then it returns a list of all steps when solving startList. If r, then it returns a new single board. If esc, then it returns nothing and exits the program. If none of these keys are pressed, startList is returned.
-   EXAMPLES: see appendix in project document
+   EXAMPLES: Impossible to do examples
 -}
 eventBoard :: Event -> [Board] -> IO [Board]  
 eventBoard event board = case event of
@@ -53,7 +53,7 @@ eventBoard event board = case event of
 {- floatBoard float startList
    Updates the list of boards every tick of the playIO-loop
    RETURNS: Returns a list which is everything but the last element of startList. If startList only has one element, then startList is returned.
-   EXAMPLES: see appendix in project document
+   EXAMPLES: Impossible to do examples
 -}
 
 floatBoard :: Float -> [Board] -> IO [Board]
@@ -64,7 +64,7 @@ floatBoard float board
 {- displayBoardOnGrid boardList
    Displays the last element in boardList as a picture at a specific position. Also displays the grid and the extra thick grid on top of this.
    RETURNS: A picture which consists of the last element in boardList and a grid.
-   EXAMPLE:  see appendix in project document
+   EXAMPLE: Impossible to do examples
 -}
 displayBoardOnGrid :: [Board] -> IO Picture
 displayBoardOnGrid board = return (translate (fromIntegral 720 * (-0.5)) (fromIntegral 720 * (-0.5)) (pictures ((map displayCell (zip [0..80] $ concat $ last board)) ++ [gridBoard] ++ [thickBoard])))
@@ -72,7 +72,7 @@ displayBoardOnGrid board = return (translate (fromIntegral 720 * (-0.5)) (fromIn
 {- displayCell (pos, value)
    Displays all the cells of the board. If a cell is fixed, then that number is written out and put in the position according to its number in the tuple. If a cell isn't fixed then a blank square is written out at the right position.
    RETURNS: A picture of value at a position according to its pos
-   EXAMPLES:  see appendix in project document
+   EXAMPLES: Impossible to do examples
 -}
 displayCell :: (Int, Cell) -> Picture
 displayCell (i, val) =
@@ -83,7 +83,7 @@ displayCell (i, val) =
 {- gridBoard
    gridBoard makes a picture with a 9x9 grid
    RETURNS: A picture with 9x9 lines painted
-   EXAMPLES:  see appendix in project document
+   EXAMPLES: Impossible to do examples
 -}
 gridBoard :: Picture
 gridBoard = pictures $ concatMap (\i -> [line [(i * cellWidth, 0.0) ,(i * cellWidth, fromIntegral 720)], line [(0.0, i * cellHeight), (fromIntegral 720, i * cellHeight)]]) [0.0..fromIntegral 9]
@@ -91,7 +91,7 @@ gridBoard = pictures $ concatMap (\i -> [line [(i * cellWidth, 0.0) ,(i * cellWi
 {- thickBoard
    thickBoard makes a picture with extra thick lines every third line
    RETURNS: A picture with thicker lines at line 1, 3, 6, 9 both horizontal and vertical
-   EXAMPLES: see appendix in project document
+   EXAMPLES: Impossible to do examples
 -}
 thickBoard :: Picture
 thickBoard = pictures $ concatMap (\i -> [line [(i * cellWidth, 0.0) ,(i * cellWidth, fromIntegral 720)], line [(0.0, i * cellHeight), (fromIntegral 720, i * cellHeight)]]) [0.01, 3.01, 6.01, 2.99, 5.99, 8.98, 8.99]
