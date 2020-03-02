@@ -30,16 +30,16 @@ type Board = [Row]
      RETURNS: (the solved board):[all steps leading up to the solution]
      EXAMPLES: see solve.txt in project folder
   -}
-solve :: Board -> [(Board, Board)]-> Maybe [Board] 
+solve :: Board -> [(Board, Board)] -> Maybe [Board] 
 solve board acc = solve' (checkBoard board) acc
   where
     -- VARIANT: length $ filter cellPossible board
     solve' board acc -- checks if board is finished or is no longer valid
       | invalidBoard board = Nothing
       | finishedBoard board = Just [n |(a,b) <- acc, n <- [a,b]] -- concat all tupels in acc to become a single list of all the steps leading up to the solution
-      | otherwise           = let acc2 = newBoard board acc
-                                  (board1, board2) = acc2 !! 0
-                              in solve board1 acc2 <|> solve board2 acc2
+      | otherwise           = let acc' = newBoard board acc
+                                  (board1, board2) = acc' !! 0
+                              in solve board1 acc' <|> solve board2 acc'
 
 {- newBoard board acc
      finds the cell with the least amount of possible numbers and fixes 
@@ -139,6 +139,26 @@ displayBoard board = unlines (map displayBoard' board)
       Fixed x -> show x ++ " " ++ displayBoard' xs
       _ -> "* " ++ displayBoard' xs
 
+{- checkBoard board
+     Removes all fixed values from possible cells in the 3x3 square, row and coloumn corresponding to a fixed cell
+     PRE: length board == 81
+     RETURNS: board with fixed values removed from possible cells
+     EXAMPLES: checkBoard (makeBoard "12345678912345678912345678912345678912345678912345678912345678912345678912345678*") = [[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Possible []]]
+  -}  
+checkBoard :: Board -> Board
+checkBoard board  = transpose $ checkRows $ transpose $ checkRows $ makeSquare $ checkRows $ makeSquare board -- calls checkRows on the rows, coloumns and 3x3 squares using transpose and makeSquare to convert from a regular Board
+  where
+    -- VARIANT: length board
+    makeSquare [] = []
+    makeSquare board = makeSquare' ((map (chunksOf 3) board)) -- converts a list of rows into a list of the correct 3x3 squares 
+      where
+        -- VARIANT: length board
+        makeSquare' [] = []
+        makeSquare' (a:b:c:xs) = if null a then makeSquare' xs else [(concat square)] ++ (makeSquare' newBoard) -- concats all 3x3 sqaures into a Board for checkRows to use
+          where
+            square = (map head [a, b, c]) -- takes the first three cells in three rows, which makes up the correct 3x3 square
+            newBoard = (drop 1 a):(drop 1 b):(drop 1 c):xs
+
 {- checkRows board 
      Removes all fixed values from every possible cell in the row with fixed values
      PRE: length board == 81
@@ -159,25 +179,6 @@ checkRows board@(x:xs) = [checkRow x fixedCells] ++ checkRows xs
         Possible cell -> [Possible (cell \\ fixedCells)] ++ checkRow xs fixedCells
         _             -> [x] ++ checkRow xs fixedCells
   
-{- checkBoard board
-     Removes all fixed values from possible cells in the 3x3 square, row and coloumn corresponding to a fixed cell
-     PRE: length board == 81
-     RETURNS: board with fixed values removed from possible cells
-     EXAMPLES: checkBoard (makeBoard "12345678912345678912345678912345678912345678912345678912345678912345678912345678*") = [[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Possible []]]
-  -}  
-checkBoard :: Board -> Board
-checkBoard board  = transpose $ checkRows $ transpose $ checkRows $ makeSquare $ checkRows $ makeSquare board -- calls checkRows on the rows, coloumns and 3x3 squares using transpose and makeSquare to convert from a regular Board
-  where
-    -- VARIANT: length board
-    makeSquare [] = []
-    makeSquare board = makeSquare' ((map (chunksOf 3) board)) -- converts a list of rows into a list of the correct 3x3 squares 
-      where
-        -- VARIANT: length board
-        makeSquare' [] = []
-        makeSquare' (a:b:c:xs) = if null a then makeSquare' xs else [(concat square)] ++ (makeSquare' newBoard) -- concats all 3x3 sqaures into a Board for checkRows to use
-          where
-            square = (map head [a, b, c]) -- takes the first three cells in three rows, which makes up the correct 3x3 square
-            newBoard = (drop 1 a):(drop 1 b):(drop 1 c):xs
             
 test1 = TestCase $ assertEqual "Display board" ("* * * * * * * 1 * \n4 * * * * * * * * \n* 2 * * * * * * * \n* * * * 5 * 4 * 7 \n* * 8 * * * 3 * * \n* * 1 * 9 * * * * \n3 * * 4 * * 2 * * \n* 5 * 1 * * * * * \n* * * 8 * 6 * * * \n") (let board = makeBoard "*******1*4*********2***********5*4*7**8***3****1*9****3**4**2***5*1********8*6***" in displayBoard board)
 

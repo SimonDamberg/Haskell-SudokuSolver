@@ -26,14 +26,14 @@ type Board = [Row]
 
 {- solve board acc
      Solves a sudoku
-     PRE: legnth board == 81
+     PRE: length board == 81
      RETURNS: (the solved board):[all steps leading up to the solution]
-     EXAMPLES: see appendix in project document
+     EXAMPLES: see solve.txt in project folder
   -}
 solve :: Board -> [(Board, Board)]-> Maybe [Board] 
 solve board acc = solve' (checkBoard board) acc
   where
-    -- VAIRANT: length $ filter cellPossible board
+    -- VARIANT: length $ filter cellPossible board
     solve' board acc -- checks if board is finished or is no longer valid
       | invalidBoard board = Nothing
       | finishedBoard board = Just [n |(a,b) <- acc, n <- [a,b]] -- concat all tupels in acc to become a single list of all the steps leading up to the solution
@@ -45,7 +45,7 @@ solve board acc = solve' (checkBoard board) acc
      finds the cell with the least amount of possible numbers and fixes 
      PRE: length board == 81
      RETURNS: (board with a cell fixed to a num, board with a cell fixed to another num or fewer possible nums):acc
-     EXAMPLES: see appendix in project document
+     EXAMPLES: see newBoard.txt in project folder
   -}
 newBoard :: Board -> [(Board, Board)] -> [(Board, Board)]
 newBoard board acc = [(returnToBoard (replace i first board), returnToBoard (replace i rest board))] ++ acc
@@ -74,7 +74,8 @@ newBoard board acc = [(returnToBoard (replace i first board), returnToBoard (rep
      Checks if a board is complete
      PRE: length board == 81
      RETURNS: True if board has no possible cells, otherwise False
-     EXAMPLES: see appendix in project document
+     EXAMPLES: finishedBoard  (makeBoard "*******12**36**********7***41**2*******5**3**7*****6**28*****4****3**5***********") = False
+               finishedBoard  (makeBoard "123456789123456789123456789123456789123456789123456789123456789123456789123456789") = True
   -}
 finishedBoard :: Board -> Bool
 finishedBoard board = (length (foldl (++) "" (map finishedBoard' board))) == 81
@@ -90,7 +91,8 @@ finishedBoard board = (length (foldl (++) "" (map finishedBoard' board))) == 81
      Checks if a board has cells with no possible numbers, and is thereby invalid
      PRE: length board == 81
      RETURNS: True if board is invalid, otherwise False
-     EXAMPLES: see appendix in project document
+     EXAMPLES: invalidBoard [[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Possible []]] = True
+               invalidBoard (makeBoard "12345678912345678912345678912345678912345678912345678912345678912345678912345678*") = False
   -}
 invalidBoard :: Board -> Bool
 invalidBoard board = length (foldl (++) "" (map invalidBoard' board)) > 0
@@ -161,7 +163,7 @@ checkRows board@(x:xs) = [checkRow x fixedCells] ++ checkRows xs
      Removes all fixed values from possible cells in the 3x3 square, row and coloumn corresponding to a fixed cell
      PRE: length board == 81
      RETURNS: board with fixed values removed from possible cells
-     EXAMPLES: see appendix in project document
+     EXAMPLES: checkBoard (makeBoard "12345678912345678912345678912345678912345678912345678912345678912345678912345678*") = [[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Possible []]]
   -}  
 checkBoard :: Board -> Board
 checkBoard board  = transpose $ checkRows $ transpose $ checkRows $ makeSquare $ checkRows $ makeSquare board -- calls checkRows on the rows, coloumns and 3x3 squares using transpose and makeSquare to convert from a regular Board
@@ -179,19 +181,21 @@ checkBoard board  = transpose $ checkRows $ transpose $ checkRows $ makeSquare $
             
 test1 = TestCase $ assertEqual "Display board" ("* * * * * * * 1 * \n4 * * * * * * * * \n* 2 * * * * * * * \n* * * * 5 * 4 * 7 \n* * 8 * * * 3 * * \n* * 1 * 9 * * * * \n3 * * 4 * * 2 * * \n* 5 * 1 * * * * * \n* * * 8 * 6 * * * \n") (let board = makeBoard "*******1*4*********2***********5*4*7**8***3****1*9****3**4**2***5*1********8*6***" in displayBoard board)
 
-test2 = TestCase $ assertEqual "Finished Board" True (let board = makeBoard "123456789123456789123456789123456789123456789123456789123456789123456789123456789" in finishedBoard board)
+test2 = TestCase $ assertEqual "Finished Board" True (finishedBoard $ makeBoard "123456789123456789123456789123456789123456789123456789123456789123456789123456789")
 
 test3 = TestCase $ assertEqual "Make Board" [[Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Fixed 1,Fixed 2],[Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Fixed 8,Possible [1,2,3,4,5,6,7,8,9],Fixed 3,Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9]],[Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Fixed 4,Possible [1,2,3,4,5,6,7,8,9]],[Fixed 1,Fixed 2,Possible [1,2,3,4,5,6,7,8,9],Fixed 5,Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9]],[Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Fixed 4,Fixed 7,Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9]],[Possible [1,2,3,4,5,6,7,8,9],Fixed 6,Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9]],[Fixed 5,Possible [1,2,3,4,5,6,7,8,9],Fixed 7,Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Fixed 3,Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9]],[Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Fixed 6,Fixed 2,Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9]],[Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Fixed 1,Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9],Possible [1,2,3,4,5,6,7,8,9]]] (makeBoard "*******12**8*3***********4*12*5**********47***6*******5*7***3*****62*******1*****")
 
 test4 = TestCase $ assertEqual "Check Rows" [[Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Possible [3,4,5,6,7,8,9],Fixed 1,Fixed 2],[Possible [1,2,4,5,6,7,9],Possible [1,2,4,5,6,7,9],Fixed 8,Possible [1,2,4,5,6,7,9],Fixed 3,Possible [1,2,4,5,6,7,9],Possible [1,2,4,5,6,7,9],Possible [1,2,4,5,6,7,9],Possible [1,2,4,5,6,7,9]],[Possible [1,2,3,5,6,7,8,9],Possible [1,2,3,5,6,7,8,9],Possible [1,2,3,5,6,7,8,9],Possible [1,2,3,5,6,7,8,9],Possible [1,2,3,5,6,7,8,9],Possible [1,2,3,5,6,7,8,9],Possible [1,2,3,5,6,7,8,9],Fixed 4,Possible [1,2,3,5,6,7,8,9]],[Fixed 1,Fixed 2,Possible [3,4,6,7,8,9],Fixed 5,Possible [3,4,6,7,8,9],Possible [3,4,6,7,8,9],Possible [3,4,6,7,8,9],Possible [3,4,6,7,8,9],Possible [3,4,6,7,8,9]],[Possible [1,2,3,5,6,8,9],Possible [1,2,3,5,6,8,9],Possible [1,2,3,5,6,8,9],Possible [1,2,3,5,6,8,9],Possible [1,2,3,5,6,8,9],Fixed 4,Fixed 7,Possible [1,2,3,5,6,8,9],Possible [1,2,3,5,6,8,9]],[Possible [1,2,3,4,5,7,8,9],Fixed 6,Possible [1,2,3,4,5,7,8,9],Possible [1,2,3,4,5,7,8,9],Possible [1,2,3,4,5,7,8,9],Possible [1,2,3,4,5,7,8,9],Possible [1,2,3,4,5,7,8,9],Possible [1,2,3,4,5,7,8,9],Possible [1,2,3,4,5,7,8,9]],[Fixed 5,Possible [1,2,4,6,8,9],Fixed 7,Possible [1,2,4,6,8,9],Possible [1,2,4,6,8,9],Possible [1,2,4,6,8,9],Fixed 3,Possible [1,2,4,6,8,9],Possible [1,2,4,6,8,9]],[Possible [1,3,4,5,7,8,9],Possible [1,3,4,5,7,8,9],Possible [1,3,4,5,7,8,9],Fixed 6,Fixed 2,Possible [1,3,4,5,7,8,9],Possible [1,3,4,5,7,8,9],Possible [1,3,4,5,7,8,9],Possible [1,3,4,5,7,8,9]],[Possible [2,3,4,5,6,7,8,9],Possible [2,3,4,5,6,7,8,9],Possible [2,3,4,5,6,7,8,9],Fixed 1,Possible [2,3,4,5,6,7,8,9],Possible [2,3,4,5,6,7,8,9],Possible [2,3,4,5,6,7,8,9],Possible [2,3,4,5,6,7,8,9],Possible [2,3,4,5,6,7,8,9]]] (checkRows $ makeBoard "*******12**8*3***********4*12*5**********47***6*******5*7***3*****62*******1*****")
 
---test5 = TestCase $ assertEqual "Check Row" [Possible [],Possible [],Possible [],Possible [],Possible [],Possible [],Possible [],Fixed 1,Fixed 2] (checkRow (head (makeBoard "*******127***6***********5**8*2*****6*****4*****1*9****19**********3*8**5*2******")) [1,2,3,4,5,6,7,8,9])
+test5 = TestCase $ assertEqual "Invalid Board 1" False (invalidBoard (makeBoard "12345678912345678912345678912345678912345678912345678912345678912345678912345678*"))
 
---test6 = TestCase $ assertEqual "Check Board"  
-{-
-test7 = TestCase $ assertEqual ""
-test8 = TestCase $ assertEqual ""
--}
+test6 = TestCase $ assertEqual "Invalid Board 2" True (invalidBoard [[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Possible []]])
 
-runtests = runTestTT $ TestList [test1, test2, test3, test4]                                 
+test7 = TestCase $ assertEqual "Check Board" [[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Fixed 9],[Fixed 1,Fixed 2,Fixed 3,Fixed 4,Fixed 5,Fixed 6,Fixed 7,Fixed 8,Possible []]] (checkBoard (makeBoard "12345678912345678912345678912345678912345678912345678912345678912345678912345678*"))
+
+test8 = TestCase $ assertEqual "Solve" [[Possible [3,5,7,8,9],Possible [3,5,6,8,9],Possible [3,5,6,7,8,9],Possible [3,4,7,8],Possible [3,4,6,7],Possible [3,4,6,8],Possible [6,7,8,9],Fixed 1,Fixed 2],[Possible [1,3,7,8,9],Fixed 4,Possible [2,3,6,7,8,9],Possible [2,3,7,8],Fixed 5,Possible [1,2,3,6,8],Possible [6,7,8,9],Possible [3,6,7,8,9],Possible [3,6,7,8,9]],[Possible [1,3,5,7,8],Possible [1,2,3,5,6,8],Possible [2,3,5,6,7,8],Possible [2,3,4,7,8],Possible [1,2,3,4,6,7],Fixed 9,Possible [6,7,8],Possible [3,4,6,7,8],Possible [3,4,5,6,7,8]],[Possible [1,3,5,8,9],Fixed 7,Possible [2,3,5,8,9],Fixed 6,Possible [2,3,9],Possible [2,3,5,8],Fixed 4,Possible [2,3,8,9],Possible [1,3,8,9]],[Possible [3,4,5,8,9],Possible [2,3,5,6,8,9],Possible [2,3,4,5,6,8,9],Fixed 1,Possible [2,3,4,7,9],Possible [2,3,4,5,8],Possible [2,6,7,8,9],Possible [2,3,6,7,8,9],Possible [3,6,7,8,9]],[Possible [1,3,4,8,9],Possible [1,2,3,6,8,9],Possible [2,3,4,6,8,9],Possible [2,3,4,7,8,9],Possible [2,3,4,7,9],Possible [2,3,4,8],Possible [1,2,6,7,8,9],Fixed 5,Possible [1,3,6,7,8,9]],[Possible [3,4,9],Fixed 9,Possible [3,4,9],Possible [2,3,4,9],Fixed 8,Fixed 7,Fixed 5,Possible [2,4,6,9],Possible [1,4,6,9]],[Fixed 6,Possible [5,8,9],Fixed 1,Possible [2,4,5,9],Possible [2,4,9],Possible [2,4,5],Fixed 3,Possible [2,4,7,8,9],Possible [4,7,8,9]],[Fixed 2,Possible [3,5,8,9],Possible [3,4,5,7,8,9],Possible [3,4,5,9],Possible [1,3,4,6,9],Possible [1,3,4,5,6],Possible [1,6,7,8,9],Possible [4,6,7,8,9],Possible [1,4,6,7,8,9]]] (let Just solved = solve (makeBoard "*******12*4**5*********9****7*6**4*****1************5*****875**6*1***3**2********") [] in last solved)
+
+test9 = TestCase $ assertEqual "newBoard" [([[Possible [5,6,8,9],Possible [4,5,6,7,9],Possible [4,5,6,7,8,9],Fixed 4,Possible [3,4,5,8,9],Possible [3,4,5,8,9],Possible [4,7,8,9],Fixed 1,Fixed 2],[Possible [1,5,8,9],Possible [2,4,5,7,9],Fixed 3,Fixed 6,Possible [1,4,5,8,9],Possible [1,2,4,5,8,9],Possible [4,7,8,9],Possible [5,7,8,9],Possible [4,5,7,8,9]],[Possible [1,5,6,8,9],Possible [2,4,5,6,9],Possible [1,2,4,5,6,8,9],Possible [1,2,4,8,9],Possible [1,3,4,5,8,9],Fixed 7,Possible [4,8,9],Possible [3,5,6,8,9],Possible [3,4,5,6,8,9]],[Fixed 4,Fixed 1,Possible [5,6,8,9],Possible [7,8,9],Fixed 2,Possible [3,6,8,9],Possible [7,8,9],Possible [5,7,8,9],Possible [5,7,8,9]],[Possible [6,8,9],Possible [2,6,9],Possible [2,6,8,9],Fixed 5,Possible [1,4,6,7,8,9],Possible [1,4,6,8,9],Fixed 3,Possible [2,7,8,9],Possible [1,4,7,8,9]],[Fixed 7,Possible [2,3,5,9],Possible [2,5,8,9],Possible [1,4,8,9],Possible [1,3,4,8,9],Possible [1,3,4,8,9],Fixed 6,Possible [2,5,8,9],Possible [1,4,5,8,9]],[Fixed 2,Fixed 8,Possible [1,5,6,7,9],Possible [1,7,9],Possible [1,5,6,7,9],Possible [1,5,6,9],Possible [1,7,9],Fixed 4,Possible [1,3,6,7,9]],[Possible [1,6,9],Possible [4,6,7,9],Possible [1,4,6,7,9],Fixed 3,Possible [1,4,6,7,8,9],Possible [1,2,4,6,8,9],Fixed 5,Possible [2,6,7,8,9],Possible [1,6,7,8,9]],[Possible [1,3,5,6,9],Possible [3,4,5,6,7,9],Possible [1,4,5,6,7,9],Possible [1,2,4,7,8,9],Possible [1,4,5,6,7,8,9],Possible [1,2,4,5,6,8,9],Possible [1,2,7,8,9],Possible [2,3,6,7,8,9],Possible [1,3,6,7,8,9]]],[[Possible [5,6,8,9],Possible [4,5,6,7,9],Possible [4,5,6,7,8,9],Possible [8,9],Possible [3,4,5,8,9],Possible [3,4,5,8,9],Possible [4,7,8,9],Fixed 1,Fixed 2],[Possible [1,5,8,9],Possible [2,4,5,7,9],Fixed 3,Fixed 6,Possible [1,4,5,8,9],Possible [1,2,4,5,8,9],Possible [4,7,8,9],Possible [5,7,8,9],Possible [4,5,7,8,9]],[Possible [1,5,6,8,9],Possible [2,4,5,6,9],Possible [1,2,4,5,6,8,9],Possible [1,2,4,8,9],Possible [1,3,4,5,8,9],Fixed 7,Possible [4,8,9],Possible [3,5,6,8,9],Possible [3,4,5,6,8,9]],[Fixed 4,Fixed 1,Possible [5,6,8,9],Possible [7,8,9],Fixed 2,Possible [3,6,8,9],Possible [7,8,9],Possible [5,7,8,9],Possible [5,7,8,9]],[Possible [6,8,9],Possible [2,6,9],Possible [2,6,8,9],Fixed 5,Possible [1,4,6,7,8,9],Possible [1,4,6,8,9],Fixed 3,Possible [2,7,8,9],Possible [1,4,7,8,9]],[Fixed 7,Possible [2,3,5,9],Possible [2,5,8,9],Possible [1,4,8,9],Possible [1,3,4,8,9],Possible [1,3,4,8,9],Fixed 6,Possible [2,5,8,9],Possible [1,4,5,8,9]],[Fixed 2,Fixed 8,Possible [1,5,6,7,9],Possible [1,7,9],Possible [1,5,6,7,9],Possible [1,5,6,9],Possible [1,7,9],Fixed 4,Possible [1,3,6,7,9]],[Possible [1,6,9],Possible [4,6,7,9],Possible [1,4,6,7,9],Fixed 3,Possible [1,4,6,7,8,9],Possible [1,2,4,6,8,9],Fixed 5,Possible [2,6,7,8,9],Possible [1,6,7,8,9]],[Possible [1,3,5,6,9],Possible [3,4,5,6,7,9],Possible [1,4,5,6,7,9],Possible [1,2,4,7,8,9],Possible [1,4,5,6,7,8,9],Possible [1,2,4,5,6,8,9],Possible [1,2,7,8,9],Possible [2,3,6,7,8,9],Possible [1,3,6,7,8,9]]])] (newBoard (checkBoard (makeBoard "*******12**36**********7***41**2*******5**3**7*****6**28*****4****3**5***********")) [])
+
+runtests = runTestTT $ TestList [test1, test2, test3, test4, test5, test6, test7, test8, test9]                                  
 
