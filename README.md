@@ -5,9 +5,9 @@ be able to skip to step 3.
 ## Packages
 1. Install the Glasgow Haskell Compiler available [here](https://www.haskell.org/ghc/download.html).
 2. Run the following command to install the required packages with cabal:
-cabal install gloss random List HUnit split
+`cabal install gloss random List HUnit split`
 3. Navigate to the folder containing the files in the terminal and run:
-ghc –make SudokuGloss.hs
+`ghc –make SudokuGloss.hs`
 4. Run SudokuGloss.exe
 ## Controls
 When the program is started, the user will be greeted with a random unsolved
